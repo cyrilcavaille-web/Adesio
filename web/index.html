@@ -612,7 +612,13 @@
   }
 
   var tesseractLoadOpts = {
-    workerPath: "assets/tesseract/worker.min.js",
+    // workerPath pointe sur un petit wrapper (voir assets/tesseract/worker-wrapper.js) :
+    // l'artifact ne sert pas les fichiers .gz, le modèle de langue est donc publié en
+    // fra.traineddata.gz.txt et le wrapper redirige la requête de tesseract.js vers ce
+    // chemin avant de charger le vrai worker. workerBlobURL:false est nécessaire pour
+    // que le wrapper ait une URL de base réelle (sinon son propre importScripts échoue).
+    workerPath: "assets/tesseract/worker-wrapper.js",
+    workerBlobURL: false,
     corePath: "assets/tesseract/tesseract-core-lstm.wasm.js",
     langPath: "assets/tesseract",
     gzip: true
