@@ -560,7 +560,12 @@
   /* ============================================================
      7. Traitement d'un fichier
      ============================================================ */
-  function finalize(lignes, filename) {
+  function finalize(lignes, filename, fournisseurFallback) {
+    if (!lignes || lignes.length === 0) {
+      var empty = newLine({ fichier: filename, fournisseur: fournisseurFallback || "" });
+      flag(empty, "BLOQUANT", "aucun poste détecté : mise en page non reconnue par le parseur", 1.0);
+      lignes = [empty];
+    }
     lignes.forEach(function (l) { l.fichier = filename; if (!l.methode) l.methode = "TEXTE"; controler(l); });
     return lignes;
   }
@@ -589,7 +594,7 @@
       else { var l1 = newLine({ fichier: file.name, fournisseur: "DUFLOT" }); flag(l1, "BLOQUANT", "AR Duflot : dépose le JSON OCR pour extraire les postes", 1.0); lignes = [l1]; }
     } else { var l2 = newLine({ fichier: file.name }); flag(l2, "BLOQUANT", "fournisseur non reconnu : parseur dédié requis", 1.0); lignes = [l2]; }
 
-    return finalize(lignes, file.name);
+    return finalize(lignes, file.name, fournisseur);
   }
 
   /* ============================================================
@@ -784,16 +789,26 @@
     if (!libOk || entries.length === 0) return;
     convertBtn.disabled = true;
     var lignesByFile = {};
+    var failures = 0;
     try {
       for (var i = 0; i < entries.length; i++) {
         var entry = entries[i];
         setStatus("muted", "traitement " + (i + 1) + "/" + entries.length + " — " + entry.pdfFile.name + " …");
         var ocrData = null;
         if (entry.ocrFile) { try { ocrData = JSON.parse(await entry.ocrFile.text()); } catch (e) { ocrData = null; } }
-        var lignes = await traiterFichier(entry.pdfFile, ocrData);
+        var lignes;
+        try {
+          lignes = await traiterFichier(entry.pdfFile, ocrData);
+        } catch (fileErr) {
+          console.error(entry.pdfFile.name, fileErr);
+          failures += 1;
+          var errLine = newLine({ fichier: entry.pdfFile.name });
+          flag(errLine, "BLOQUANT", "erreur de lecture : " + (fileErr && fileErr.message ? fileErr.message : "fichier illisible"), 1.0);
+          lignes = finalize([errLine], entry.pdfFile.name);
+        }
         lignesByFile[entry.pdfFile.name + "#" + entry.id] = lignes;
       }
-      setStatus("ok", "terminé · " + entries.length + " fichier(s)");
+      setStatus(failures ? "crit" : "ok", "terminé · " + entries.length + " fichier(s)" + (failures ? " · " + failures + " en erreur" : ""));
       await renderResults(lignesByFile, false);
     } catch (err) {
       console.error(err);
