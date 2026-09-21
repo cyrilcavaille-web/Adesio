@@ -520,10 +520,17 @@
       l.ref_fournisseur = m[2]; l.ref_fabricant = cleanLabel(m[3]);
       l.qte = l.qte_a_recevoir = toFloat(m[4], "fr"); l.unite = m[5]; l.pu_ht = toFloat(m[6], "fr");
       l.commentaires = "poste fournisseur " + m[1];
+      // Polyrack ne transmet jamais le n. de poste client. Sur un AR à une
+      // seule ligne (seul cas rencontré à ce jour), on propose 001 par
+      // défaut plutôt que de bloquer systématiquement l'import : à
+      // confirmer contre la commande Excalibur avant validation.
+      l.id_poste = "001";
+      flag(l, "A VERIFIER", "Id poste non fourni par Polyrack : proposé par défaut à 001 (AR à une seule ligne) — à confirmer contre la commande Excalibur", 0.2);
     }
     m = stripAccents(text).match(/Votre n. d'article\s*:\s*(\S+)/); if (m) l.produit = m[1];
     m = text.match(/Date de livraison:\s*(\d{2}\.\d{2}\.\d{4})/); l.date_confirmee = m ? toDate(m[1]) : null;
     if (text.indexOf("Livraison gratuite") !== -1) l.commentaires = stripSemi(l.commentaires + " ; livraison gratuite (PU 0)");
+    if (!l.fabricant) l.fabricant = "POLYRACK";
     l.total_annonce = (l.qte || 0) * (l.pu_ht || 0);
     return [l];
   }

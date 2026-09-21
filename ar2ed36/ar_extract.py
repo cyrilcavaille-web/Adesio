@@ -355,6 +355,14 @@ def parse_polyrack(text: str) -> list[ARLine]:
         l.unite = m.group(5)
         l.pu_ht = to_float(m.group(6), "fr")
         l.commentaires = f"poste fournisseur {m.group(1)}"
+        # Polyrack ne transmet jamais le n. de poste client. Sur un AR a une
+        # seule ligne (seul cas rencontre a ce jour), on propose 001 par
+        # defaut plutot que de bloquer systematiquement l'import : a
+        # confirmer contre la commande Excalibur avant validation.
+        l.id_poste = "001"
+        l.flag("A VERIFIER",
+               "Id poste non fourni par Polyrack : propose par defaut a 001 "
+               "(AR a une seule ligne) - a confirmer contre la commande Excalibur", 0.2)
     m = re.search(r"Votre n. d'article\s*:\s*(\S+)", strip_accents(text))
     if m:
         l.produit = m.group(1)
@@ -362,6 +370,10 @@ def parse_polyrack(text: str) -> list[ARLine]:
     l.date_confirmee = to_date(m.group(1)) if m else None
     if "Livraison gratuite" in text:
         l.commentaires = (l.commentaires + " ; livraison gratuite (PU 0)").strip(" ;")
+    if not l.fabricant:
+        # Polyrack fabrique lui-meme ce type de coffret sur mesure ; aucun
+        # autre fabricant n'apparait jamais sur ces AR.
+        l.fabricant = "POLYRACK"
     l.total_annonce = (l.qte or 0) * (l.pu_ht or 0)
     return [l]
 
