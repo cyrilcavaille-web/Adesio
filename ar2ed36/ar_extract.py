@@ -257,7 +257,9 @@ def parse_ebv(text: str) -> list[ARLine]:
 
 
 def parse_icape(text: str) -> list[ARLine]:
-    """AR ICAPE : anglais, USD, prix au lot de n PCB, pas de n. de poste client."""
+    """AR ICAPE : anglais, USD (ou autre devise), prix au lot de n PCB.
+    Le n. de poste client est l'"Item" ICAPE (ex. "30" dans "30  Material: ..."),
+    a confirmer avec AW."""
     l = ARLine(fournisseur="ICAPE", methode="TEXTE", unite="PCB", devise="USD")
     m = re.search(r"Number\s+(\d+)", text)
     l.num_ar = m.group(1) if m else ""
@@ -265,6 +267,10 @@ def parse_icape(text: str) -> list[ARLine]:
     l.date_ar = to_date(m.group(1)) if m else None
     m = re.search(r"Customer Order Reference\s+(\S+)", text)
     l.num_cmde = m.group(1) if m else ""
+    m = re.search(r"^(\d+)\s+Material:", text, re.M)
+    if m:
+        l.id_poste = m.group(1).zfill(3)
+        l.flag("A VERIFIER", f"poste deduit de l'Item ICAPE '{m.group(1)}' : a confirmer avec AW", 0.1)
     m = re.search(r"Material:\s*(\S+)\s+(\S+)", text)
     if m:
         l.produit, l.ref_fournisseur = m.group(2), m.group(1)

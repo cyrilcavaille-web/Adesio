@@ -467,6 +467,11 @@
     var m = text.match(/Number\s+(\d+)/); l.num_ar = m ? m[1] : "";
     m = text.match(/Creation date\s+([A-Za-z]+ \d{1,2}, \d{4})/); l.date_ar = m ? toDate(m[1]) : null;
     m = text.match(/Customer Order Reference\s+(\S+)/); l.num_cmde = m ? m[1] : "";
+    m = text.match(/^(\d+)\s+Material:/m);
+    if (m) {
+      l.id_poste = m[1].padStart(3, "0");
+      flag(l, "A VERIFIER", "poste deduit de l'Item ICAPE '" + m[1] + "' : a confirmer avec AW", 0.1);
+    }
     m = text.match(/Material:\s*(\S+)\s+(\S+)/); if (m) { l.produit = m[2]; l.ref_fournisseur = m[1]; }
     m = text.match(/Quantity\s*:\s*([\d.,]+)\s+(\w+)/); if (m) { l.qte = toFloat(m[1], "en"); l.unite = m[2]; }
     m = text.match(/Requested delivery date\s*:\s*([A-Za-z]+ \d{1,2}, \d{4})/); l.date_souhaitee = m ? toDate(m[1]) : null;
