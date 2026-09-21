@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ar2ed36 — AR fournisseurs → Excalibur ED36</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>ar2ed36</h1>
+    <p class="sous-titre">Conversion des AR de commande fournisseurs (PDF) vers le format d'import Excalibur ED36</p>
+  </header>
+
+  <main>
+    <section class="carte">
+      <h2>1. Déposer les AR fournisseurs</h2>
+      <form action="{{ url_for('convert') }}" method="post" enctype="multipart/form-data">
+        <label class="zone-fichiers">
+          <span>Fichiers PDF (un ou plusieurs AR)</span>
+          <input type="file" name="pdfs" accept="application/pdf" multiple required>
+        </label>
+        <label class="zone-fichiers zone-optionnelle">
+          <span>JSON OCR associé (optionnel — pour un AR scanné sans couche texte, ex. Duflot)</span>
+          <input type="file" name="ocr_json" accept="application/json">
+        </label>
+        <button type="submit" class="bouton bouton-principal">Convertir en ED36</button>
+      </form>
+
+      <form action="{{ url_for('demo') }}" method="post" class="demo-form">
+        <button type="submit" class="bouton bouton-secondaire">
+          Lancer la démo (exemple Duflot scanné + OCR)
+        </button>
+      </form>
+
+      {% if erreur %}
+        <p class="erreur">{{ erreur }}</p>
+      {% endif %}
+    </section>
+
+    {% if result %}
+    <section class="carte">
+      <h2>2. Résultat {% if demo %}<span class="badge-demo">démo</span>{% endif %}</h2>
+
+      <div class="resume">
+        <div class="pastille pastille-neutre"><strong>{{ result.nb_fichiers }}</strong><span>fichier(s)</span></div>
+        <div class="pastille pastille-neutre"><strong>{{ result.nb_postes }}</strong><span>poste(s) extrait(s)</span></div>
+        <div class="pastille pastille-ok"><strong>{{ result.nb_ok }}</strong><span>OK</span></div>
+        <div class="pastille pastille-warn"><strong>{{ result.nb_a_controler }}</strong><span>à contrôler</span></div>
+        <div class="pastille pastille-ko"><strong>{{ result.nb_bloquants }}</strong><span>bloquant(s)</span></div>
+      </div>
+
+      <a class="bouton bouton-principal" href="{{ url_for('download', token=result.token) }}">
+        Télécharger AR_import_ED36.xlsx
+      </a>
+
+      <table class="table-resultats">
+        <thead>
+          <tr>
+            <th>Fichier</th>
+            <th>Fournisseur</th>
+            <th>Méthode</th>
+            <th>N° cmde</th>
+            <th>Poste</th>
+            <th>Statut</th>
+            <th>Confiance</th>
+            <th>Anomalies</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for l in result.lignes %}
+          <tr class="ligne-{{ 'ok' if l.statut == 'OK' else ('warn' if l.statut == 'A CONTROLER' else 'ko') }}">
+            <td>{{ l.fichier }}</td>
+            <td>{{ l.fournisseur }}</td>
+            <td>{{ l.methode }}</td>
+            <td>{{ l.num_cmde or '—' }}</td>
+            <td>{{ l.id_poste or '—' }}</td>
+            <td><span class="statut">{{ l.statut }}</span></td>
+            <td>{{ "%.2f"|format(l.confiance) }}</td>
+            <td class="anomalies">{{ l.anomalies|join(' | ') or '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+    {% endif %}
+
+    <section class="carte carte-info">
+      <h2>Comment ça marche</h2>
+      <ol>
+        <li><strong>Ingestion</strong> — lecture du PDF, détection de la couche texte.</li>
+        <li><strong>Classification</strong> — identification du fournisseur par empreinte texte (EBV, ICAPE, Confidee, Polyrack, Duflot…).</li>
+        <li><strong>Extraction</strong> — parseur dédié par fournisseur (ancres + regex).</li>
+        <li><strong>Normalisation</strong> — dates multi-formats, conventions numériques FR/EN, prix ramené à l'unité.</li>
+        <li><strong>Contrôles</strong> — champs obligatoires, cohérence PU × Qté = total, écart de délai, format n° commande.</li>
+        <li><strong>Export</strong> — fichier Excel ED36 (colonnes A→S) + journal de contrôle + paramétrage appliqué.</li>
+      </ol>
+      <p class="note">
+        Les AR scannés sans couche texte (ex. Duflot) nécessitent un JSON produit par un moteur OCR
+        (Tesseract / Azure Document Intelligence), à déposer en second fichier avec le même nom de base
+        que le PDF (ex. <code>AR_PO_Duflot.pdf</code> + <code>AR_PO_Duflot.ocr.json</code>).
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Prototype ADESIO — démo ANALOG WAY.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "_note": "Transcription de reference du scan AR_PO_Duflot.pdf. En production cette structure est produite par le moteur OCR (Tesseract / Azure Document Intelligence), pas saisie a la main. Elle sert ici a demontrer la sortie complete de la chaine.",
+  "fournisseur": "DUFLOT",
+  "num_cmde": "A202300560",
+  "num_ar": "A202300560 A",
+  "date_ar": "05/10/2023",
+  "devise": "EUR",
+  "postes": [
+    {"poste": "001", "produit": "180965", "libelle": "MNG 2U CHASSIS", "qte": 101.0, "unite": "UNITE", "pu": 57.9, "total": 5847.9, "date_livraison": "21/11/2023"},
+    {"poste": "002", "produit": "180966", "libelle": "MNG 2U CAPOT", "qte": 101.0, "unite": "UNITE", "pu": 21.9, "total": 2211.9, "date_livraison": "21/11/2023"},
+    {"poste": "003", "produit": "930267", "libelle": "FRAIS DE PORT", "qte": 1.0, "unite": "UNITE", "pu": 385.0, "total": 385.0, "date_livraison": "21/11/2023"},
+    {"poste": "004", "produit": "930267", "libelle": "FRAIS DE PORT EXPOSITION 101 PIECES CDE A202300242", "qte": 1.0, "unite": "UNITE", "pu": 385.0, "total": 385.0, "date_livraison": "21/11/2023"}
+  ]
+}
