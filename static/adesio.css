@@ -1,0 +1,984 @@
+/* ============================================================
+   ADESIO DESIGN SYSTEM · bundle.css
+   Base layer, ambient-accent + product scopes, and every
+   component style, verbatim from the built adesio.css (v2).
+   Design tokens themselves are compiled from tokens.json into
+   tokens.css; this file layers on top of it. Fonts (Inter,
+   JetBrains Mono) load from Google Fonts in previews.
+   ============================================================ */
+
+/* ============================================================
+   ADESIO · COLOR TOKENS  ·  v2
+   Changes: namespaced --ads-* (F-01) · one naming grammar (F-02)
+   9 hues -> 5 (A-05) · SSM re-hued for separation (A-04)
+   status independent of products (A-06) · ambient accent, no JS
+   colour maps (D-01/D-02) · wells specified as composited values,
+   not alpha (E-04) · chart series palette added (A-05)
+   ============================================================ */
+
+:root {
+  /* --- Canvas / surfaces --- */
+  --ads-canvas:        #F7F8FA;
+  --ads-canvas-deep:   #ECEFF4;
+  --ads-surface:       #FFFFFF;   /* raised card — flat, no gradient (E-01) */
+  --ads-surface-well:  #E9ECF2;   /* recessed terminal/input well */
+  --ads-chrome-bar:    rgba(255, 255, 255, 0.92);  /* sticky nav / utility bar */
+
+  /* --- Ink ramp --- */
+  --ads-text-strong:   #0B1020;
+  --ads-text-body:     rgba(11, 16, 32, 0.72);
+  --ads-text-muted:    rgba(11, 16, 32, 0.55);
+  --ads-text-faint:    rgba(11, 16, 32, 0.42);
+  --ads-text-disabled: rgba(11, 16, 32, 0.34);  /* replaces opacity:.4 (A-03) */
+  --ads-text-inverse:  #FFFFFF;
+
+  /* --- Borders + washes --- */
+  --ads-border-subtle:  rgba(11, 16, 32, 0.07);
+  --ads-border-default: rgba(11, 16, 32, 0.13);
+  --ads-border-strong:  rgba(11, 16, 32, 0.24);
+  --ads-wash:           rgba(11, 16, 32, 0.05);
+
+  /* --- Product palette · 4 accents, real hue separation ---
+     fill = filled surfaces · ink = type + hairlines · on = foreground */
+  --ads-product-partcheck-fill: #00C2A8;  /* teal      ~175deg */
+  --ads-product-partcheck-ink:  #00806F;
+  --ads-product-partcheck-on:   #04120F;
+
+  --ads-product-cpi-fill:       #6C5CE7;  /* purple    ~250deg */
+  --ads-product-cpi-ink:        #5546D6;
+  --ads-product-cpi-on:         #FFFFFF;
+
+  --ads-product-ssm-fill:       #84CC16;  /* chartreuse ~85deg — was #00B37A,
+                                             indistinguishable from teal (A-04) */
+  --ads-product-ssm-ink:        #4D7C0F;
+  --ads-product-ssm-on:         #14210A;
+
+  --ads-product-suppliers-fill: #FF8C42;  /* orange     ~25deg */
+  --ads-product-suppliers-ink:  #B85C0F;
+  --ads-product-suppliers-on:   #1C0C02;
+
+  /* --- Red · high-intent CTA and critical state --- */
+  --ads-red-fill: #FF4757;
+  --ads-red-ink:  #D1273A;
+  --ads-red-on:   #FFFFFF;
+
+  /* --- Status · dedicated hues, never a product accent (A-06) --- */
+  --ads-status-ok:   #0E8A5F;
+  --ads-status-live: #0B72C4;
+  --ads-status-warn: #A85A06;
+  --ads-status-crit: var(--ads-red-ink);
+
+  /* --- Chart series · ordered by contrast against paper (A-05) --- */
+  --ads-series-1: #0B72C4;
+  --ads-series-2: #B85C0F;
+  --ads-series-3: #00806F;
+  --ads-series-4: #5546D6;
+  --ads-series-5: #4D7C0F;
+  --ads-series-6: #8A94A6;
+  --ads-series-risk-1: #E8EDF3;
+  --ads-series-risk-2: #F4D9A8;
+  --ads-series-risk-3: #F0A05A;
+  --ads-series-risk-4: #D1273A;
+
+  /* --- Ambient accent · default Part Check.
+     Components read these four; they never name a product (D-01). --- */
+  --ads-accent-fill: var(--ads-product-partcheck-fill);
+  --ads-accent-ink:  var(--ads-product-partcheck-ink);
+  --ads-accent-on:   var(--ads-product-partcheck-on);
+  --ads-accent-hover:    color-mix(in srgb, var(--ads-accent-fill) 84%, white);
+  --ads-accent-wash:     color-mix(in srgb, var(--ads-accent-fill) 13%, transparent);
+  --ads-accent-hairline: color-mix(in srgb, var(--ads-accent-fill) 32%, transparent);
+}
+
+/* Set data-product on a section; everything inside re-points.
+   The derived values are repeated per block because a custom property
+   declared on :root computes there and cannot re-resolve downstream. */
+[data-product="partcheck"] {
+  --ads-accent-fill: var(--ads-product-partcheck-fill);
+  --ads-accent-ink:  var(--ads-product-partcheck-ink);
+  --ads-accent-on:   var(--ads-product-partcheck-on);
+  --ads-accent-hover:    color-mix(in srgb, var(--ads-product-partcheck-fill) 84%, white);
+  --ads-accent-wash:     color-mix(in srgb, var(--ads-product-partcheck-fill) 13%, transparent);
+  --ads-accent-hairline: color-mix(in srgb, var(--ads-product-partcheck-fill) 32%, transparent);
+}
+[data-product="cpi"] {
+  --ads-accent-fill: var(--ads-product-cpi-fill);
+  --ads-accent-ink:  var(--ads-product-cpi-ink);
+  --ads-accent-on:   var(--ads-product-cpi-on);
+  --ads-accent-hover:    color-mix(in srgb, var(--ads-product-cpi-fill) 84%, white);
+  --ads-accent-wash:     color-mix(in srgb, var(--ads-product-cpi-fill) 13%, transparent);
+  --ads-accent-hairline: color-mix(in srgb, var(--ads-product-cpi-fill) 32%, transparent);
+}
+[data-product="ssm"] {
+  --ads-accent-fill: var(--ads-product-ssm-fill);
+  --ads-accent-ink:  var(--ads-product-ssm-ink);
+  --ads-accent-on:   var(--ads-product-ssm-on);
+  --ads-accent-hover:    color-mix(in srgb, var(--ads-product-ssm-fill) 84%, white);
+  --ads-accent-wash:     color-mix(in srgb, var(--ads-product-ssm-fill) 13%, transparent);
+  --ads-accent-hairline: color-mix(in srgb, var(--ads-product-ssm-fill) 32%, transparent);
+}
+[data-product="suppliers"] {
+  --ads-accent-fill: var(--ads-product-suppliers-fill);
+  --ads-accent-ink:  var(--ads-product-suppliers-ink);
+  --ads-accent-on:   var(--ads-product-suppliers-on);
+  --ads-accent-hover:    color-mix(in srgb, var(--ads-product-suppliers-fill) 84%, white);
+  --ads-accent-wash:     color-mix(in srgb, var(--ads-product-suppliers-fill) 13%, transparent);
+  --ads-accent-hairline: color-mix(in srgb, var(--ads-product-suppliers-fill) 32%, transparent);
+}
+/* Accent-free scope. Bare :root points at Part Check, so a surface that simply
+   omits data-product renders TEAL — there is no neutral fallback position.
+   This scope is that position: the accent trio maps onto the ink and border
+   steps, so every component that reads --ads-accent-* renders monochrome
+   without knowing it. For administrative surfaces that own no product. */
+[data-product="none"] {
+  --ads-accent-fill: var(--ads-text-strong);
+  --ads-accent-ink:  var(--ads-text-strong);
+  --ads-accent-on:   var(--ads-text-inverse);
+  --ads-accent-hover:    color-mix(in srgb, var(--ads-text-strong) 84%, white);
+  --ads-accent-wash:     var(--ads-wash);
+  --ads-accent-hairline: var(--ads-border-strong);
+}
+/* In the dark variant the hover mix has to go the other way, or the state
+   darkens into the canvas instead of lifting off it. */
+[data-theme="dark"] [data-product="none"],
+[data-theme="dark"][data-product="none"] {
+  --ads-accent-hover: color-mix(in srgb, var(--ads-text-strong) 84%, black);
+}
+
+[data-product="cta"] {
+  --ads-accent-fill: var(--ads-red-fill);
+  --ads-accent-ink:  var(--ads-red-ink);
+  --ads-accent-on:   var(--ads-red-on);
+  --ads-accent-hover:    color-mix(in srgb, var(--ads-red-fill) 84%, white);
+  --ads-accent-wash:     color-mix(in srgb, var(--ads-red-fill) 13%, transparent);
+  --ads-accent-hairline: color-mix(in srgb, var(--ads-red-fill) 32%, transparent);
+}
+
+/* ============================================================
+   DARK VARIANT — values change, semantics do not (E-03).
+   Surfaces stay opaque; the well stays a fixed step darker.
+   ============================================================ */
+[data-theme="dark"] {
+  --ads-canvas:       #0A0E1A;
+  --ads-canvas-deep:  #060912;
+  --ads-surface:      #131829;   /* opaque, was a 10% white film */
+  --ads-surface-well: #0A0F1D;   /* ~14% darker than surface, as in light */
+  --ads-chrome-bar:   rgba(10, 14, 26, 0.88);
+
+  --ads-text-strong:   #FFFFFF;
+  --ads-text-body:     rgba(255, 255, 255, 0.70);
+  --ads-text-muted:    rgba(255, 255, 255, 0.52);
+  --ads-text-faint:    rgba(255, 255, 255, 0.40);
+  --ads-text-disabled: rgba(255, 255, 255, 0.32);
+  --ads-text-inverse:  #0A0E1A;
+
+  --ads-border-subtle:  rgba(255, 255, 255, 0.07);
+  --ads-border-default: rgba(255, 255, 255, 0.13);
+  --ads-border-strong:  rgba(255, 255, 255, 0.24);
+  --ads-wash:           rgba(255, 255, 255, 0.06);
+
+  /* Inks fold back to the fills — legible on navy without darkening */
+  --ads-product-partcheck-ink: #2FD9C0;
+  --ads-product-cpi-ink:       #9A8CFF;
+  --ads-product-ssm-ink:       #A3E635;
+  --ads-product-suppliers-ink: #FFA163;
+  --ads-red-ink:               #FF7B87;
+
+  --ads-status-ok:   #34D399;
+  --ads-status-live: #58B6F5;
+  --ads-status-warn: #F0A05A;
+
+  --ads-series-risk-1: #1B2233;
+  --ads-series-risk-2: #6B5426;
+  --ads-series-risk-3: #B4702E;
+  --ads-series-risk-4: #FF7B87;
+}
+
+/* ============================================================
+   ADESIO · TYPOGRAPHY TOKENS  ·  v2
+   Changes: 11 steps -> 7, floor at 12px (B-01) · top three fluid
+   (B-03) · one scale, three media tiers (B-02) · mono restricted
+   to machine values (B-04) · tracking names match the guide (B-05)
+   ============================================================ */
+
+:root {
+  --ads-font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ads-font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --ads-weight-regular:  400;
+  --ads-weight-medium:   500;
+  --ads-weight-semibold: 600;
+  --ads-weight-bold:     700;
+
+  /* --- Scale · 7 steps, ~1.33 ratio, screen tier ---
+     1 display · 2 page title · 3 section title · 4 subhead
+     5 lead body · 6 body/UI · 7 caption + machine labels */
+  --ads-text-1: clamp(2.25rem, 1.42rem + 2.9vw, 3.5rem);      /* 36 -> 56 */
+  --ads-text-2: clamp(1.75rem, 1.32rem + 1.5vw, 2.5rem);      /* 28 -> 40 */
+  --ads-text-3: clamp(1.375rem, 1.19rem + 0.65vw, 1.875rem);  /* 22 -> 30 */
+  --ads-text-4: 1.375rem;   /* 22 */
+  --ads-text-5: 1.0625rem;  /* 17 */
+  --ads-text-6: 0.875rem;   /* 14 */
+  --ads-text-7: 0.75rem;    /* 12 — hard floor; --text-2xs/3xs are gone */
+
+  --ads-leading-tight:   1.1;
+  --ads-leading-snug:    1.3;
+  --ads-leading-normal:  1.5;
+  --ads-leading-relaxed: 1.65;
+
+  --ads-tracking-tight:  -0.02em;  /* display + titles */
+  --ads-tracking-normal: 0;
+  --ads-tracking-wide:   0.06em;   /* mono metrics */
+  --ads-tracking-wider:  0.1em;    /* status lines */
+  --ads-tracking-widest: 0.18em;   /* terminal headers — matches the guide */
+
+  --ads-measure: 68ch;             /* prose line length */
+}
+
+/* --- Deck tier · same seven names, 24px floor for 1920x1080 (B-02) --- */
+[data-medium="deck"] {
+  --ads-text-1: 120px;
+  --ads-text-2: 88px;
+  --ads-text-3: 64px;
+  --ads-text-4: 46px;
+  --ads-text-5: 34px;
+  --ads-text-6: 28px;
+  --ads-text-7: 24px;
+}
+
+/* --- Print tier · points, 9pt floor (B-02) --- */
+@media print {
+  :root {
+    --ads-text-1: 26pt;
+    --ads-text-2: 20pt;
+    --ads-text-3: 15pt;
+    --ads-text-4: 12.5pt;
+    --ads-text-5: 11pt;
+    --ads-text-6: 10pt;
+    --ads-text-7: 9pt;
+  }
+}
+
+/* ============================================================
+   ADESIO · SPACING, RADII & SIZING  ·  v2
+   Changes: added the two steps components were reaching past (C-01)
+   5 radii -> 3 + full, concentric nesting (C-02) · density scopes
+   for the console (C-03) · --border-width deleted (C-04)
+   ============================================================ */
+
+:root {
+  --ads-space-1:  0.25rem;  /*  4 */
+  --ads-space-2:  0.5rem;   /*  8 */
+  --ads-space-3:  0.75rem;  /* 12 */
+  --ads-space-4:  1rem;     /* 16 */
+  --ads-space-5:  1.25rem;  /* 20 */
+  --ads-space-6:  1.5rem;   /* 24 */
+  --ads-space-8:  2rem;     /* 32 */
+  --ads-space-10: 2.5rem;   /* 40 — new */
+  --ads-space-12: 3rem;     /* 48 */
+  --ads-space-16: 4rem;     /* 64 */
+  --ads-space-20: 5rem;     /* 80 — new */
+  --ads-space-24: 6rem;     /* 96 */
+
+  --ads-container: 80rem;
+  --ads-content:   64rem;
+
+  /* --- Radii · 3 + full. Inner = outer - padding (concentric) --- */
+  --ads-radius-chip:    4px;
+  --ads-radius-control: 8px;
+  --ads-radius-surface: 16px;
+  --ads-radius-full:    9999px;
+
+  /* --- Component padding · marketing density (default) --- */
+  --ads-pad-card:    var(--ads-space-8);   /* 32 */
+  --ads-pad-well:    var(--ads-space-6);   /* 24 */
+  --ads-pad-section: var(--ads-space-24);  /* 96 */
+  --ads-gap-grid:    var(--ads-space-12);  /* 48 */
+  --ads-control-h:   40px;
+
+  --ads-grid-size: 20px;
+}
+
+/* --- Console density · same components, working rhythm (C-03) --- */
+[data-density="console"] {
+  --ads-pad-card:    var(--ads-space-5);   /* 20 */
+  --ads-pad-well:    var(--ads-space-4);   /* 16 */
+  --ads-pad-section: var(--ads-space-12);  /* 48 */
+  --ads-gap-grid:    var(--ads-space-6);   /* 24 */
+  --ads-control-h:   32px;
+}
+
+/* ============================================================
+   ADESIO · EFFECTS  ·  v2
+   Changes: focus ring token (A-02) · card chrome cut from four
+   effects to one hairline (E-01) · reduced-motion guards (E-02)
+   · --glow-cpi renamed to what it is, set completed (E-05)
+   · deliberate print form instead of subtracted features (E-01)
+   ============================================================ */
+
+:root {
+  /* --- Elevation · the card is flat. Shadow is for things that float. --- */
+  --ads-shadow-none: none;
+  --ads-shadow-pop:  0 12px 32px -12px rgba(11, 16, 32, 0.22);  /* menus, modals */
+  --ads-shadow-cta:  0 10px 24px -12px rgba(11, 16, 32, 0.30);
+
+  /* --- Focus · 3:1 minimum against any surface, ink hue not fill --- */
+  --ads-focus-ring: 0 0 0 2px var(--ads-canvas), 0 0 0 4px var(--ads-accent-ink);
+
+  --ads-blur-bar: 12px;   /* sticky chrome only — cards no longer blur */
+
+  /* --- Glows · halos, one per product, used on focal elements only --- */
+  --ads-glow-partcheck: 0 0 24px color-mix(in srgb, var(--ads-product-partcheck-fill) 28%, transparent);
+  --ads-glow-cpi:       0 0 24px color-mix(in srgb, var(--ads-product-cpi-fill) 28%, transparent);
+  --ads-glow-ssm:       0 0 24px color-mix(in srgb, var(--ads-product-ssm-fill) 28%, transparent);
+  --ads-glow-suppliers: 0 0 24px color-mix(in srgb, var(--ads-product-suppliers-fill) 28%, transparent);
+  --ads-ecg-stroke:     0 0 3px var(--ads-product-cpi-fill);   /* was --glow-cpi */
+
+  /* --- Motion · curves are chosen, not defaulted (E-03) ---------------
+     The built-in CSS easings are too weak to read as intentional; the
+     Material curve v2 shipped as --ads-ease starts slow, which is the
+     one thing a UI curve must not do. Four curves, one job each. */
+  --ads-ease-out:    cubic-bezier(0.23, 1, 0.32, 1);   /* @kind other */  /* enter, exit, press */
+  --ads-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);  /* @kind other */  /* movement on screen */
+  --ads-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);   /* @kind other */  /* panels from an edge */
+  --ads-ease:        ease;                             /* @kind other */  /* colour + hover only */
+  --ads-ease-linear: linear;                           /* @kind other */  /* constant motion */
+
+  /* Nothing in the UI runs longer than 300ms. */
+  --ads-dur-press:  120ms;  /* @kind other */
+  --ads-dur-hover:  150ms;  /* @kind other */
+  --ads-dur-pop:    180ms;  /* @kind other */  /* tooltip, menu, select */
+  --ads-dur-panel:  260ms;  /* @kind other */  /* modal, drawer */
+
+  --ads-duration-fast:   var(--ads-dur-hover);   /* @kind other */  /* alias, v2 call sites */
+  --ads-duration-normal: var(--ads-dur-panel);   /* @kind other */  /* alias, v2 call sites */
+  --ads-ecg-period:      0.9375s; /* @kind other */  /* 64 BPM */
+
+  --ads-grid-line: rgba(11, 16, 32, 0.05);
+}
+
+[data-theme="dark"] {
+  --ads-shadow-pop: 0 16px 40px -16px rgba(0, 0, 0, 0.75);
+  --ads-shadow-cta: 0 14px 30px -14px rgba(0, 0, 0, 0.8);
+  --ads-grid-line:  rgba(255, 255, 255, 0.06);   /* was 3% — invisible */
+}
+
+/* --- Graph-paper texture --- */
+.ads-grid {
+  background-image:
+    linear-gradient(to right,  var(--ads-grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--ads-grid-line) 1px, transparent 1px);
+  background-size: var(--ads-grid-size) var(--ads-grid-size);
+}
+
+/* --- Live indicator · static by default, animated only on request (E-02) --- */
+.ads-pulse { opacity: 1; }
+@keyframes ads-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: no-preference) {
+  .ads-pulse { animation: ads-pulse 1.6s var(--ads-ease-in-out) infinite; }
+}
+
+/* --- Print · the card's form is specified, not subtracted (E-01) --- */
+@media print {
+  :root { --ads-canvas: #FFF; --ads-surface: #FFF; --ads-surface-well: #FFF; }
+  .ads-card, .ads-well {
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    border-radius: 0 !important;
+    border: 1px solid rgba(11, 16, 32, 0.42) !important;
+    background: none !important;
+    break-inside: avoid;
+  }
+  .ads-card { border-top: 2px solid #0B1020 !important; }
+  .ads-grid { background-image: none !important; }
+  .ads-pulse { animation: none !important; }
+}
+
+/* ============================================================
+   ADESIO · BASE LAYER  ·  v2 — new file (F-04)
+   Opt-in page defaults so no consumer rewrites this block again.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ads-canvas);
+  color: var(--ads-text-body);
+  font-family: var(--ads-font-sans);
+  font-size: var(--ads-text-6);
+  line-height: var(--ads-leading-relaxed);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+  color: var(--ads-text-strong);
+  font-weight: var(--ads-weight-bold);
+  letter-spacing: var(--ads-tracking-tight);
+  line-height: var(--ads-leading-tight);
+  text-wrap: balance;
+}
+h1 { font-size: var(--ads-text-1); }
+h2 { font-size: var(--ads-text-3); }
+h3 { font-size: var(--ads-text-4); }
+h4 { font-size: var(--ads-text-5); line-height: var(--ads-leading-snug); }
+
+p { margin: 0; max-width: var(--ads-measure); text-wrap: pretty; }
+
+a, .ads-link {
+  color: var(--ads-accent-ink);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+a:hover, .ads-link:hover { color: var(--ads-text-strong); }
+
+/* One focus treatment for everything (A-02) */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--ads-focus-ring);
+  border-radius: var(--ads-radius-control);
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+
+/* Numbers are machine output: mono, tabular, right-aligned in tables */
+.ads-num, td.ads-num {
+  font-family: var(--ads-font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+::selection { background: var(--ads-accent-wash); }
+
+hr { border: none; border-top: 1px solid var(--ads-border-default); margin: 0; }
+
+img, svg { display: block; max-width: 100%; }
+
+/* ============================================================
+   ADESIO · COMPONENT STYLES  ·  v2 — new file
+   States live in CSS, not React state (D-03). Components read the
+   ambient --ads-accent-* only; none of them knows a product (D-01).
+   ============================================================ */
+
+/* ---------- Button (D-01, D-03, D-04, D-06, D-08) ---------- */
+.ads-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ads-space-2);
+  min-height: var(--ads-control-h);
+  padding: 0 var(--ads-space-4);
+  border: 1px solid transparent;
+  border-radius: var(--ads-radius-control);
+  font-family: var(--ads-font-sans);
+  font-size: var(--ads-text-6);
+  font-weight: var(--ads-weight-semibold);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--ads-dur-hover) var(--ads-ease),
+              border-color var(--ads-dur-hover) var(--ads-ease),
+              transform var(--ads-dur-press) var(--ads-ease-out);
+}
+.ads-btn--sm { min-height: 28px; padding: 0 var(--ads-space-3); font-size: var(--ads-text-7); }
+.ads-btn--lg { min-height: 52px; padding: 0 var(--ads-space-6); font-size: var(--ads-text-5); }
+
+.ads-btn--solid   { background: var(--ads-accent-fill); color: var(--ads-accent-on); }
+.ads-btn--outline { background: transparent; color: var(--ads-text-strong); border-color: var(--ads-border-default); }
+.ads-btn--quiet   { background: transparent; color: var(--ads-accent-ink); }
+
+@media (hover: hover) {
+  .ads-btn--solid:hover   { background: var(--ads-accent-hover); }
+  .ads-btn--outline:hover { background: var(--ads-wash); border-color: var(--ads-border-strong); }
+  .ads-btn--quiet:hover   { background: var(--ads-accent-wash); }
+}
+/* Press feedback: a half-pixel nudge is below the threshold of being felt.
+   scale() carries the label and icon with it, so the whole control answers. */
+.ads-btn:active { transform: scale(0.97); }
+.ads-btn--block:active, .ads-btn--lg:active { transform: scale(0.985); }  /* wide targets need less */
+.ads-btn:focus-visible { box-shadow: var(--ads-focus-ring); outline: none; }
+.ads-btn[disabled], .ads-btn[aria-disabled="true"] {
+  background: var(--ads-wash);
+  color: var(--ads-text-disabled);
+  border-color: var(--ads-border-subtle);
+  cursor: not-allowed;
+}
+.ads-btn[data-loading="true"] { cursor: progress; }
+.ads-btn--block { display: flex; width: 100%; }
+
+/* ---------- Badge ---------- */
+.ads-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ads-space-2);
+  padding: 3px var(--ads-space-2);
+  border-radius: var(--ads-radius-chip);
+  background: var(--ads-accent-wash);
+  color: var(--ads-accent-ink);
+  font-family: var(--ads-font-mono);
+  font-size: var(--ads-text-7);
+  font-weight: var(--ads-weight-bold);
+  letter-spacing: var(--ads-tracking-wide);
+  text-transform: uppercase;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.ads-badge--neutral { background: var(--ads-wash); color: var(--ads-text-muted); }
+.ads-badge--ok   { background: color-mix(in srgb, var(--ads-status-ok) 13%, transparent);   color: var(--ads-status-ok); }
+.ads-badge--warn { background: color-mix(in srgb, var(--ads-status-warn) 13%, transparent); color: var(--ads-status-warn); }
+.ads-badge--crit { background: color-mix(in srgb, var(--ads-status-crit) 13%, transparent); color: var(--ads-status-crit); }
+.ads-badge--live { background: color-mix(in srgb, var(--ads-status-live) 13%, transparent); color: var(--ads-status-live); }
+.ads-dot { width: 6px; height: 6px; border-radius: var(--ads-radius-full); background: currentColor; flex-shrink: 0; }
+
+/* ---------- Card · one hairline, nothing else (E-01) ---------- */
+.ads-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--ads-surface);
+  border: 1px solid var(--ads-border-default);
+  border-radius: var(--ads-radius-surface);
+  padding: var(--ads-pad-card);
+  transition: border-color var(--ads-dur-hover) var(--ads-ease);
+}
+@media (hover: hover) {
+  .ads-card--interactive:hover { border-color: var(--ads-border-strong); }
+}
+
+/* ---------- Well (terminal) · concentric inside a card ---------- */
+.ads-well {
+  background: var(--ads-surface-well);
+  border: 1px solid var(--ads-accent-hairline);
+  border-radius: var(--ads-radius-control);
+  padding: var(--ads-pad-well);
+}
+.ads-well__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ads-space-4);
+  margin-bottom: var(--ads-space-4);
+  font-family: var(--ads-font-mono);
+  font-size: var(--ads-text-7);
+  letter-spacing: var(--ads-tracking-widest);
+  text-transform: uppercase;
+  color: var(--ads-text-muted);
+}
+
+/* ---------- Tagline · ink, never fill (A-01) ---------- */
+.ads-tagline {
+  font-family: var(--ads-font-mono);
+  font-size: var(--ads-text-7);
+  font-weight: var(--ads-weight-bold);
+  letter-spacing: var(--ads-tracking-wide);
+  text-transform: uppercase;
+  color: var(--ads-accent-ink);
+}
+
+/* ---------- Status line · muted token, no opacity (A-03) ---------- */
+.ads-status {
+  display: flex;
+  align-items: center;
+  gap: var(--ads-space-3);
+  color: var(--ads-text-muted);
+  font-family: var(--ads-font-mono);
+  font-size: var(--ads-text-7);
+  letter-spacing: var(--ads-tracking-wider);
+  text-transform: uppercase;
+}
+.ads-status__rule { height: 1px; width: 32px; background: var(--ads-border-default); flex-shrink: 0; }
+
+/* ---------- Field · recessed, real focus ring (A-02, A-07, D-05) ---------- */
+.ads-field { display: flex; flex-direction: column; gap: var(--ads-space-2); }
+.ads-field__label {
+  font-family: var(--ads-font-mono);
+  font-size: var(--ads-text-7);
+  letter-spacing: var(--ads-tracking-wide);
+  text-transform: uppercase;
+  color: var(--ads-text-muted);
+}
+.ads-input {
+  width: 100%;
+  min-height: var(--ads-control-h);
+  padding: 0 var(--ads-space-3);
+  background: var(--ads-wash);
+  border: 1px solid var(--ads-border-default);
+  border-radius: var(--ads-radius-control);
+  color: var(--ads-text-strong);
+  font-family: var(--ads-font-mono);
+  font-size: var(--ads-text-6);
+}
+.ads-input::placeholder { color: var(--ads-text-faint); }
+.ads-input:hover { border-color: var(--ads-border-strong); }
+.ads-input:focus-visible { outline: none; border-color: var(--ads-accent-ink); box-shadow: var(--ads-focus-ring); }
+.ads-input[aria-invalid="true"] { border-color: var(--ads-status-crit); }
+.ads-field__error { color: var(--ads-status-crit); font-size: var(--ads-text-7); }
+
+/* ---------- Table · mono numerics, hairlines, no zebra (D-05) ---------- */
+.ads-table { width: 100%; border-collapse: collapse; font-size: var(--ads-text-6); }
+.ads-table th {
+  text-align: left;
+  padding: var(--ads-space-2) var(--ads-space-3);
+  border-bottom: 1px solid var(--ads-border-strong);
+  font-family: var(--ads-font-mono);
+  font-size: var(--ads-text-7);
+  font-weight: var(--ads-weight-bold);
+  letter-spacing: var(--ads-tracking-wide);
+  text-transform: uppercase;
+  color: var(--ads-text-muted);
+}
+.ads-table td { padding: var(--ads-space-3); border-bottom: 1px solid var(--ads-border-subtle); color: var(--ads-text-body); }
+.ads-table tbody tr:hover td { background: var(--ads-wash); }
+
+/* ---------- Alert ---------- */
+.ads-alert {
+  display: flex;
+  gap: var(--ads-space-3);
+  padding: var(--ads-space-4);
+  border: 1px solid var(--ads-border-default);
+  border-radius: var(--ads-radius-control);
+  background: var(--ads-surface);
+  font-size: var(--ads-text-6);
+  color: var(--ads-text-body);
+}
+.ads-alert__mark { width: 3px; align-self: stretch; min-height: 1lh; border-radius: var(--ads-radius-full); background: var(--ads-status-warn); flex-shrink: 0; }
+.ads-alert--crit .ads-alert__mark { background: var(--ads-status-crit); }
+.ads-alert--ok .ads-alert__mark { background: var(--ads-status-ok); }
+
+/* ---------- Example chip · "try this" affordance under a Terminal ---------- */
+.ads-chip {
+  padding: var(--ads-space-1) var(--ads-space-2);
+  border: 1px solid var(--ads-border-default);
+  border-radius: var(--ads-radius-chip);
+  background: transparent;
+  color: var(--ads-text-muted);
+  font-family: var(--ads-font-mono);
+  font-size: var(--ads-text-7);
+  letter-spacing: var(--ads-tracking-wide);
+  cursor: pointer;
+  transition: color var(--ads-duration-fast) var(--ads-ease),
+              border-color var(--ads-duration-fast) var(--ads-ease);
+}
+@media (hover: hover) {
+  .ads-chip:hover { color: var(--ads-accent-ink); border-color: var(--ads-accent-hairline); }
+}
+.ads-chip:focus-visible { box-shadow: var(--ads-focus-ring); outline: none; }
+
+/* ---------- Segmented control · utility-bar switchers ---------- */
+.ads-seg {
+  padding: 2px var(--ads-space-2);
+  border: 1px solid var(--ads-border-default);
+  border-radius: var(--ads-radius-chip);
+  background: transparent;
+  color: var(--ads-text-muted);
+  font-family: var(--ads-font-mono);
+  font-size: var(--ads-text-7);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color var(--ads-duration-fast) var(--ads-ease),
+              color var(--ads-duration-fast) var(--ads-ease);
+}
+@media (hover: hover) {
+  .ads-seg:hover { background: var(--ads-wash); color: var(--ads-text-strong); }
+}
+.ads-seg[aria-pressed="true"] {
+  background: var(--ads-accent-fill);
+  border-color: transparent;
+  color: var(--ads-accent-on);
+}
+.ads-seg:focus-visible { box-shadow: var(--ads-focus-ring); outline: none; }
+/* Inside a bordered group the wrapper draws the frame — don't double it. */
+.ads-seg-group { display: inline-flex; gap: var(--ads-space-1); padding: var(--ads-space-1);
+  background: var(--ads-surface-well); border: 1px solid var(--ads-border-default);
+  border-radius: var(--ads-radius-control); }
+.ads-seg-group .ads-seg, .ads-seg-group .ads-cycle { border-color: transparent; }
+
+/* ---------- Toggle · sentence-case segmented control (billing, modes) ---------- */
+.ads-cycle {
+  padding: var(--ads-space-2) var(--ads-space-4);
+  border: 1px solid var(--ads-border-default);
+  border-radius: var(--ads-radius-chip);
+  background: transparent;
+  color: var(--ads-text-muted);
+  font-family: var(--ads-font-sans);
+  font-size: var(--ads-text-6);
+  font-weight: var(--ads-weight-medium);
+  cursor: pointer;
+  transition: background-color var(--ads-duration-fast) var(--ads-ease),
+              color var(--ads-duration-fast) var(--ads-ease);
+}
+@media (hover: hover) {
+  .ads-cycle:hover { background: var(--ads-wash); color: var(--ads-text-strong); }
+}
+.ads-cycle[aria-pressed="true"] {
+  background: var(--ads-surface);
+  border-color: var(--ads-border-strong);
+  color: var(--ads-text-strong);
+}
+.ads-cycle:focus-visible { box-shadow: var(--ads-focus-ring); outline: none; }
+
+/* ============================================================
+   Promoted from the CMS kit — the seven controls the back office
+   could not be drawn without. Class names moved from .cms-* to
+   .ads-*; every value was already an --ads-* token, so nothing
+   was rewritten on the way in.
+   ============================================================ */
+
+/* ---------- Checkbox ---------- */
+.ads-check {
+  appearance: none;
+  position: relative;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin: 0;
+  border: 1px solid var(--ads-border-strong);
+  border-radius: var(--ads-radius-chip);
+  background: var(--ads-wash);
+  cursor: pointer;
+  transition: background-color var(--ads-duration-fast) var(--ads-ease),
+              border-color var(--ads-duration-fast) var(--ads-ease);
+}
+@media (hover: hover) {
+  .ads-check:hover { border-color: var(--ads-accent-ink); }
+}
+.ads-check:checked,
+.ads-check:indeterminate { background: var(--ads-accent-fill); border-color: transparent; }
+/* The mark is a masked shape, not a glyph — emoji and icon fonts are banned and
+   Lucide cannot live inside an appearance:none input. Masking rather than baking
+   the stroke into the data URI is what lets the mark take --ads-accent-on, so it
+   is dark ink on teal, chartreuse and orange and white on purple and red. A data
+   URI cannot read a custom property; a mask can. */
+.ads-check::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  background: var(--ads-accent-on);
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center;  mask-position: center;
+  -webkit-mask-size: 100%;        mask-size: 100%;
+  opacity: 0;
+}
+.ads-check:checked::after,
+.ads-check:indeterminate::after { opacity: 1; }
+.ads-check:checked::after { -webkit-mask-image: var(--ads-tick); mask-image: var(--ads-tick); }
+.ads-check:indeterminate::after { -webkit-mask-image: var(--ads-dash); mask-image: var(--ads-dash); }
+:root {
+  --ads-tick: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E"); /* @kind other */
+  --ads-dash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M4 8h8'/%3E%3C/svg%3E"); /* @kind other */
+}
+.ads-check:focus-visible { box-shadow: var(--ads-focus-ring); outline: none; }
+.ads-check[disabled] { background: var(--ads-wash); border-color: var(--ads-border-subtle); cursor: not-allowed; }
+.ads-check[disabled]::after { background: var(--ads-text-disabled); }
+
+/* ---------- Textarea ---------- */
+.ads-textarea {
+  width: 100%;
+  padding: var(--ads-space-3);
+  background: var(--ads-wash);
+  border: 1px solid var(--ads-border-default);
+  border-radius: var(--ads-radius-control);
+  color: var(--ads-text-strong);
+  font-family: var(--ads-font-sans);
+  font-size: var(--ads-text-6);
+  line-height: 1.6;
+  resize: vertical;
+}
+/* Authored source is a machine value, so it is mono; prose stays sans. */
+.ads-textarea--mono { font-family: var(--ads-font-mono); }
+.ads-textarea::placeholder { color: var(--ads-text-faint); }
+.ads-textarea:hover { border-color: var(--ads-border-strong); }
+.ads-textarea:focus-visible { outline: none; border-color: var(--ads-accent-ink); box-shadow: var(--ads-focus-ring); }
+.ads-textarea[disabled] { color: var(--ads-text-disabled); cursor: not-allowed; }
+
+/* ---------- Select ---------- */
+.ads-select {
+  min-height: var(--ads-control-h);
+  padding: 0 var(--ads-space-6) 0 var(--ads-space-3);
+  background: var(--ads-wash);
+  border: 1px solid var(--ads-border-default);
+  border-radius: var(--ads-radius-control);
+  color: var(--ads-text-strong);
+  font-family: var(--ads-font-mono);
+  font-size: var(--ads-text-6);
+  cursor: pointer;
+  appearance: none;
+  /* ::after does not render on a <select>, so the chevron is a background image
+     and its stroke has to be baked in — one declaration per theme rather than a
+     token. The values are --ads-text-strong in each theme; if those move, these
+     move with them. */
+  background-image: var(--ads-chevron);
+  background-repeat: no-repeat;
+  background-position: right var(--ads-space-3) center;
+  background-size: 14px;
+}
+:root {
+  --ads-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%230B1020' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6.5l4 4 4-4'/%3E%3C/svg%3E"); /* @kind other */
+}
+[data-theme="dark"] {
+  --ads-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23FFFFFF' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6.5l4 4 4-4'/%3E%3C/svg%3E"); /* @kind other */
+}
+.ads-select:hover { border-color: var(--ads-border-strong); }
+.ads-select:focus-visible { outline: none; border-color: var(--ads-accent-ink); box-shadow: var(--ads-focus-ring); }
+.ads-select[disabled] { color: var(--ads-text-disabled); cursor: not-allowed; }
+
+/* ---------- Modal · the one place shadow is allowed (it floats) ---------- */
+.ads-modal {
+  width: 100%;
+  max-width: 680px;
+  max-height: calc(100vh - var(--ads-space-12));
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--ads-surface);
+  border: 1px solid var(--ads-border-default);
+  border-radius: var(--ads-radius-surface);
+  box-shadow: var(--ads-shadow-pop);
+  color: var(--ads-text-body);
+}
+.ads-modal--narrow { max-width: 460px; }
+
+/* Entrance · the modal is not anchored to a trigger, so it stays centred and
+   scales from 0.97 — never from 0. Reduced motion keeps the fade, drops the
+   scale; it is a comprehension cue, not decoration. */
+.ads-modal {
+  opacity: 1;
+  transition: opacity var(--ads-dur-panel) var(--ads-ease-out),
+              transform var(--ads-dur-panel) var(--ads-ease-out),
+              overlay var(--ads-dur-panel) var(--ads-ease-out) allow-discrete,
+              display var(--ads-dur-panel) var(--ads-ease-out) allow-discrete;
+}
+.ads-modal:not([open]) { opacity: 0; }
+@starting-style { .ads-modal[open] { opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .ads-modal { transform-origin: center; transform: scale(1); }
+  .ads-modal:not([open]) { transform: scale(0.97); }
+  @starting-style { .ads-modal[open] { transform: scale(0.97); } }
+}
+.ads-modal::backdrop {
+  transition: opacity var(--ads-dur-panel) var(--ads-ease-out),
+              overlay var(--ads-dur-panel) var(--ads-ease-out) allow-discrete,
+              display var(--ads-dur-panel) var(--ads-ease-out) allow-discrete;
+  opacity: 1;
+}
+.ads-modal:not([open])::backdrop { opacity: 0; }
+@starting-style { .ads-modal[open]::backdrop { opacity: 0; } }
+.ads-modal::backdrop {
+  /* Ink at low alpha, not a backdrop blur — the card rule bans blur, and a
+     blurred scrim makes the page behind unreadable in a print export. */
+  background: rgba(11, 16, 32, 0.38);
+}
+[data-theme="dark"] .ads-modal::backdrop { background: rgba(0, 0, 0, 0.62); }
+.ads-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ads-space-4);
+  padding: var(--ads-pad-card) var(--ads-pad-card) var(--ads-space-3);
+}
+.ads-modal__title { margin: 0; font-size: var(--ads-text-4); font-weight: var(--ads-weight-semibold); color: var(--ads-text-strong); }
+.ads-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-space-4);
+  padding: 0 var(--ads-pad-card);
+  overflow-y: auto;
+}
+.ads-modal__foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ads-space-3);
+  padding: var(--ads-space-4) var(--ads-pad-card) var(--ads-pad-card);
+}
+.ads-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+  border-radius: var(--ads-radius-control);
+  background: transparent;
+  color: var(--ads-text-muted);
+  cursor: pointer;
+  transition: background-color var(--ads-duration-fast) var(--ads-ease),
+              color var(--ads-duration-fast) var(--ads-ease);
+}
+@media (hover: hover) {
+  .ads-modal__close:hover { background: var(--ads-wash); color: var(--ads-text-strong); }
+}
+.ads-modal__close:focus-visible { box-shadow: var(--ads-focus-ring); outline: none; }
+.ads-modal__count { margin-right: auto; font-family: var(--ads-font-mono); font-size: var(--ads-text-7); color: var(--ads-text-muted); }
+
+/* ---------- Pop · menus, selects, tooltips ----------
+   Anything anchored to a trigger scales from the trigger, not from the middle
+   of itself. Set --ads-pop-origin on the element to the corner it hangs from
+   (top left / top right / bottom left ...); default is directly below.
+   Transitions, not keyframes: a menu re-opened mid-close retargets instead of
+   restarting from zero. */
+.ads-pop {
+  transform-origin: var(--ads-pop-origin, top center);
+  transition: opacity var(--ads-dur-pop) var(--ads-ease-out),
+              transform var(--ads-dur-pop) var(--ads-ease-out);
+}
+.ads-pop[data-state="closed"], .ads-pop[hidden] { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .ads-pop[data-state="closed"], .ads-pop[hidden] { transform: scale(0.96); }
+}
+/* Second and later tooltips in a toolbar open instantly — the delay exists to
+   stop accidental activation, and that job is already done. */
+.ads-pop[data-instant] { transition-duration: 0ms; }
+
+/* ---------- Empty state ---------- */
+.ads-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ads-space-3);
+  padding: var(--ads-space-6) var(--ads-space-4);
+  text-align: center;
+  color: var(--ads-text-muted);
+  font-size: var(--ads-text-6);
+}
+.ads-empty__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--ads-border-default);
+  border-radius: var(--ads-radius-control);
+  background: var(--ads-surface-well);
+  color: var(--ads-text-faint);
+}
+.ads-empty__title { color: var(--ads-text-strong); font-weight: var(--ads-weight-medium); }
+
+/* ---------- Skeleton ---------- */
+/* Shimmer is guarded like the live dot and the ECG; with motion reduced it is a
+   flat well-coloured block, which still reads as "not here yet". */
+.ads-skel { display: block; height: 10px; border-radius: var(--ads-radius-full); background: var(--ads-surface-well); }
+@media (prefers-reduced-motion: no-preference) {
+  .ads-skel {
+    background: linear-gradient(90deg, var(--ads-surface-well) 0%, var(--ads-wash) 50%, var(--ads-surface-well) 100%);
+    background-size: 240% 100%;
+    animation: ads-skel 1.4s var(--ads-ease-linear) infinite;
+  }
+}
+@keyframes ads-skel { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+
+/* ---------- Pagination ---------- */
+.ads-pager {
+  display: flex;
+  align-items: center;
+  gap: var(--ads-space-3);
+  padding: var(--ads-space-3) var(--ads-space-5);
+  border-top: 1px solid var(--ads-border-subtle);
+  font-family: var(--ads-font-mono);
+  font-size: var(--ads-text-7);
+  color: var(--ads-text-muted);
+}
+.ads-pager__spacer { margin-left: auto; }
