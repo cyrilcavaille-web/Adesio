@@ -1,0 +1,972 @@
+<title>ar2ed36</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/adesio.css">
+<style>
+  /* adesio.css only themes via [data-theme="dark"]; add the system-preference
+     fallback for viewers on "system" theme (no explicit stamp), per the
+     artifact contract — same values as the design system's own dark block. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ads-canvas:       #0A0E1A;
+      --ads-canvas-deep:  #060912;
+      --ads-surface:      #131829;
+      --ads-surface-well: #0A0F1D;
+      --ads-chrome-bar:   rgba(10, 14, 26, 0.88);
+
+      --ads-text-strong:   #FFFFFF;
+      --ads-text-body:     rgba(255, 255, 255, 0.70);
+      --ads-text-muted:    rgba(255, 255, 255, 0.52);
+      --ads-text-faint:    rgba(255, 255, 255, 0.40);
+      --ads-text-disabled: rgba(255, 255, 255, 0.32);
+      --ads-text-inverse:  #0A0E1A;
+
+      --ads-border-subtle:  rgba(255, 255, 255, 0.07);
+      --ads-border-default: rgba(255, 255, 255, 0.13);
+      --ads-border-strong:  rgba(255, 255, 255, 0.24);
+      --ads-wash:           rgba(255, 255, 255, 0.06);
+
+      --ads-product-partcheck-ink: #2FD9C0;
+      --ads-product-cpi-ink:       #9A8CFF;
+      --ads-product-ssm-ink:       #A3E635;
+      --ads-product-suppliers-ink: #FFA163;
+      --ads-red-ink:               #FF7B87;
+
+      --ads-status-ok:   #34D399;
+      --ads-status-live: #58B6F5;
+      --ads-status-warn: #F0A05A;
+    }
+  }
+  :root { background: var(--ads-canvas); }
+  * { box-sizing: border-box; }
+  .page {
+    background: var(--ads-canvas);
+    color: var(--ads-text-body);
+    font-family: var(--ads-font-sans);
+    font-size: var(--ads-text-6);
+    min-height: 100%;
+    padding: var(--ads-space-6) var(--ads-space-4) var(--ads-space-24);
+  }
+  .shell { max-width: var(--ads-content); margin: 0 auto; display: flex; flex-direction: column; gap: var(--ads-space-8); }
+
+  /* ---- header ---- */
+  .page-head { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-4); flex-wrap: wrap; }
+  .wordmark { font-family: var(--ads-font-sans); font-weight: var(--ads-weight-bold); font-size: var(--ads-text-4); letter-spacing: var(--ads-tracking-tight); color: var(--ads-text-strong); }
+  .wordmark span { color: var(--ads-accent-ink); }
+
+  /* ---- hero ---- */
+  .hero h1 { margin: 0 0 var(--ads-space-2); font-size: var(--ads-text-2); font-weight: var(--ads-weight-bold); letter-spacing: var(--ads-tracking-tight); color: var(--ads-text-strong); text-wrap: balance; }
+  .hero p { margin: 0; max-width: 62ch; font-size: var(--ads-text-5); line-height: 1.5; color: var(--ads-text-body); }
+  .hero .eyebrow { display: block; font-family: var(--ads-font-mono); font-size: var(--ads-text-7); letter-spacing: var(--ads-tracking-widest); text-transform: uppercase; color: var(--ads-text-faint); margin-bottom: var(--ads-space-3); }
+
+  /* ---- pipeline steps ---- */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--ads-space-3); }
+  .step { border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-control); padding: var(--ads-space-3); background: var(--ads-surface); }
+  .step__n { font-family: var(--ads-font-mono); font-size: var(--ads-text-7); color: var(--ads-accent-ink); letter-spacing: var(--ads-tracking-wide); }
+  .step__t { font-weight: var(--ads-weight-semibold); color: var(--ads-text-strong); margin: var(--ads-space-1) 0 2px; }
+  .step__d { color: var(--ads-text-muted); font-size: var(--ads-text-7); line-height: 1.4; }
+
+  /* ---- card title ---- */
+  .card-title { display: block; color: var(--ads-text-strong); font-size: var(--ads-text-4); font-weight: var(--ads-weight-semibold); }
+
+  /* ---- dropzone ---- */
+  .dropzone {
+    margin-top: var(--ads-space-4); border: 1px dashed var(--ads-border-strong); border-radius: var(--ads-radius-control);
+    padding: var(--ads-space-8) var(--ads-space-4); text-align: center; cursor: pointer; background: var(--ads-surface-well);
+  }
+  .dropzone:hover, .dropzone:focus-visible { border-color: var(--ads-accent-ink); outline: none; }
+  .dropzone.drag { border-color: var(--ads-accent-ink); background: var(--ads-accent-wash); }
+  .dropzone .mark { color: var(--ads-accent-ink); margin-bottom: var(--ads-space-2); }
+  .dropzone .title { font-weight: var(--ads-weight-semibold); color: var(--ads-text-strong); margin-bottom: 2px; }
+  .dropzone .sub { color: var(--ads-text-muted); font-size: var(--ads-text-7); }
+
+  .file-list { display: flex; flex-direction: column; gap: var(--ads-space-2); margin-top: var(--ads-space-4); }
+  .file-row { display: flex; align-items: center; gap: var(--ads-space-3); flex-wrap: wrap; border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-control); padding: var(--ads-space-2) var(--ads-space-3); }
+  .file-row__name { font-family: var(--ads-font-mono); font-size: var(--ads-text-7); color: var(--ads-text-strong); flex: 1 1 220px; overflow-wrap: anywhere; }
+  .file-row__size { font-family: var(--ads-font-mono); font-size: var(--ads-text-7); color: var(--ads-text-faint); }
+  .file-row__ocr { display: flex; align-items: center; gap: var(--ads-space-1); font-size: var(--ads-text-7); color: var(--ads-text-muted); cursor: pointer; }
+  .file-row__ocr.attached { color: var(--ads-status-ok); }
+  .file-row__ocr input { max-width: 130px; font-size: var(--ads-text-7); }
+  .file-row__remove { background: none; border: none; color: var(--ads-text-faint); cursor: pointer; font-size: var(--ads-text-6); line-height: 1; padding: var(--ads-space-1); }
+  .file-row__remove:hover { color: var(--ads-status-crit); }
+
+  .upload-actions { display: flex; align-items: center; gap: var(--ads-space-3); margin-top: var(--ads-space-4); flex-wrap: wrap; }
+  .hint { margin: var(--ads-space-3) 0 0; color: var(--ads-text-faint); font-size: var(--ads-text-7); }
+
+  .log { font-family: var(--ads-font-mono); font-size: var(--ads-text-7); line-height: 1.8; }
+  .log .cmd { color: var(--ads-accent-ink); }
+  .log .muted { color: var(--ads-text-muted); }
+  .log .ok { color: var(--ads-status-ok); }
+  .log .crit { color: var(--ads-status-crit); }
+
+  /* ---- results ---- */
+  .results-head { display: flex; align-items: center; justify-content: space-between; gap: var(--ads-space-3); flex-wrap: wrap; }
+  .results-head h2 { margin: 0; font-size: var(--ads-text-4); font-weight: var(--ads-weight-semibold); color: var(--ads-text-strong); }
+  .results-actions { display: flex; align-items: center; gap: var(--ads-space-3); flex-wrap: wrap; }
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: var(--ads-space-3); }
+  .stat { border: 1px solid var(--ads-border-subtle); border-radius: var(--ads-radius-control); padding: var(--ads-space-3) var(--ads-space-4); background: var(--ads-surface-well); text-align: center; }
+  .stat strong { display: block; font-family: var(--ads-font-mono); font-size: var(--ads-text-3); font-variant-numeric: tabular-nums; color: var(--ads-text-strong); }
+  .stat span { display: block; font-size: var(--ads-text-7); color: var(--ads-text-muted); margin-top: 2px; }
+  .stat.crit strong { color: var(--ads-status-crit); }
+  .stat.warn strong { color: var(--ads-status-warn); }
+  .stat.ok strong { color: var(--ads-status-ok); }
+
+  .table-wrap { overflow-x: auto; }
+  .table-wrap table { min-width: 640px; }
+  td.file { font-family: var(--ads-font-mono); font-size: var(--ads-text-7); color: var(--ads-text-body); }
+  td.note { color: var(--ads-text-muted); font-size: var(--ads-text-7); max-width: 30ch; }
+  .file-detail { margin-top: var(--ads-space-3); }
+  .file-detail summary { cursor: pointer; color: var(--ads-accent-ink); font-size: var(--ads-text-7); font-weight: var(--ads-weight-semibold); list-style: none; }
+  .file-detail summary::-webkit-details-marker { display: none; }
+  .file-detail summary:before { content: "▸ "; }
+  .file-detail[open] summary:before { content: "▾ "; }
+  .file-detail .table-wrap { margin-top: var(--ads-space-2); }
+
+  .flash { animation: ads-flash 900ms ease; }
+  @keyframes ads-flash { 0% { box-shadow: 0 0 0 2px var(--ads-accent-ink); } 100% { box-shadow: 0 0 0 0 transparent; } }
+  @media (prefers-reduced-motion: reduce) { .flash { animation: none; } }
+
+  .foot { color: var(--ads-text-faint); font-size: var(--ads-text-7); text-align: center; padding-top: var(--ads-space-4); border-top: 1px solid var(--ads-border-subtle); }
+  .err { color: var(--ads-status-crit); font-size: var(--ads-text-7); margin-top: var(--ads-space-3); }
+</style>
+
+<div class="page" data-product="suppliers" data-density="console">
+  <div class="shell">
+
+    <header class="page-head">
+      <div class="wordmark">Ade<span>s</span>io</div>
+      <span class="ads-badge">Suppliers</span>
+    </header>
+
+    <div class="hero">
+      <span class="eyebrow">Adesio · Suppliers</span>
+      <h1>ar2ed36</h1>
+      <p>Convertit les accusés de réception (AR) de commande fournisseurs — PDF texte ou scannés — vers le fichier d'import Excalibur <strong>ED36</strong>, avec un contrôle de cohérence ligne à ligne avant tout import. Traitement entièrement dans le navigateur : rien n'est envoyé à un serveur.</p>
+    </div>
+
+    <section class="ads-card">
+      <div class="steps">
+        <div class="step"><div class="step__n">01</div><div class="step__t">Ingestion</div><div class="step__d">Lecture du PDF, détection de la couche texte</div></div>
+        <div class="step"><div class="step__n">02</div><div class="step__t">Classification</div><div class="step__d">Identification du fournisseur par empreinte texte</div></div>
+        <div class="step"><div class="step__n">03</div><div class="step__t">Extraction</div><div class="step__d">Parseur dédié par fournisseur (ancres + regex)</div></div>
+        <div class="step"><div class="step__n">04</div><div class="step__t">Normalisation</div><div class="step__d">Dates, conventions FR/EN, prix à l'unité</div></div>
+        <div class="step"><div class="step__n">05</div><div class="step__t">Contrôles</div><div class="step__d">Champs obligatoires, PU × Qté = total, écart de délai</div></div>
+        <div class="step"><div class="step__n">06</div><div class="step__t">Export</div><div class="step__d">Fichier Excel ED36 + journal de contrôle</div></div>
+      </div>
+    </section>
+
+    <section class="ads-card" id="upload-card">
+      <strong class="card-title">1. Charger les AR fournisseurs</strong>
+
+      <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Déposer des AR au format PDF, ou cliquer pour en choisir">
+        <div class="mark">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto"><path d="M11 3v11M6 9l5-5 5 5"/><path d="M3 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+        </div>
+        <div class="title">Dépose un ou plusieurs AR (PDF)</div>
+        <div class="sub">ou clique pour parcourir — EBV, ICAPE, Confidee, Polyrack, Duflot…</div>
+      </div>
+      <input type="file" id="file-input" accept="application/pdf" multiple hidden>
+
+      <div class="file-list" id="file-list"></div>
+
+      <div class="upload-actions">
+        <button class="ads-btn ads-btn--solid" id="convert-btn" disabled>Convertir en ED36</button>
+        <button class="ads-btn ads-btn--quiet ads-btn--sm" id="clear-btn" hidden>Tout retirer</button>
+        <span id="convert-status" class="log"></span>
+      </div>
+      <p class="hint">AR scanné sans couche texte (ex. Duflot, bon de commande retourné signé) : attache le JSON OCR correspondant sur sa ligne pour en extraire les postes.</p>
+      <p class="err" id="lib-error" hidden>Les librairies de lecture PDF / génération Excel n'ont pas pu se charger. Recharge la page ou réessaie plus tard.</p>
+    </section>
+
+    <section class="ads-card" id="results">
+      <div class="results-head">
+        <h2>Résultat</h2>
+        <div class="results-actions">
+          <span class="ads-badge ads-badge--neutral" id="results-tag">Exemple préchargé</span>
+          <button class="ads-btn ads-btn--solid ads-btn--sm" id="download-btn" disabled>Télécharger AR_import_ED36.xlsx</button>
+        </div>
+      </div>
+      <div id="results-body"></div>
+    </section>
+
+    <p class="foot">ar2ed36 — Adesio. Lecture PDF (pdf.js) et export Excel (ExcelJS) exécutés localement dans le navigateur ; aucun fichier n'est transmis à un serveur. Les parseurs EBV / ICAPE / Confidee / Polyrack restent à valider sur des AR réels de ces fournisseurs.</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     0. Capacité de téléchargement
+     ============================================================ */
+  var downloadsNs = null;
+  (async function initDownloads() {
+    try {
+      if (window.claude && window.claude.use) downloadsNs = await window.claude.use("downloads");
+    } catch (e) { downloadsNs = null; }
+  })();
+
+  var libOk = (typeof pdfjsLib !== "undefined") && (typeof ExcelJS !== "undefined");
+  if (!libOk) {
+    document.getElementById("lib-error").hidden = false;
+  } else {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+  }
+
+  /* ============================================================
+     1. Utilitaires
+     ============================================================ */
+  function stripAccents(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+
+  function cleanLabel(s) {
+    s = s.replace(/\s+/g, " ").trim();
+    s = s.replace(/(?<=\w) ([a-z])(?= |$)/g, "$1");
+    return s;
+  }
+
+  function stripSemi(s) { return s.replace(/^[ ;]+/, "").replace(/[ ;]+$/, ""); }
+
+  var MONTHS_FULL = ["january","february","march","april","may","june","july","august","september","october","november","december"];
+  var MOIS_EN = {};
+  MONTHS_FULL.forEach(function (m, i) { MOIS_EN[m] = i + 1; MOIS_EN[m.slice(0, 3)] = i + 1; });
+
+  function toDate(raw) {
+    if (!raw) return null;
+    raw = String(raw).trim().replace(/[.,]+$/, "");
+    var m = raw.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
+    if (m) return new Date(Date.UTC(+m[3], +m[2] - 1, +m[1]));
+    m = raw.match(/^(\d{1,2})\s+([A-Za-z]+)\.?\s+(\d{4})$/);
+    if (m) { var k1 = m[2].toLowerCase().slice(0, 3); if (MOIS_EN[k1]) return new Date(Date.UTC(+m[3], MOIS_EN[k1] - 1, +m[1])); }
+    m = raw.match(/^([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})$/);
+    if (m) { var k2 = m[1].toLowerCase().slice(0, 3); if (MOIS_EN[k2]) return new Date(Date.UTC(+m[3], MOIS_EN[k2] - 1, +m[2])); }
+    return null;
+  }
+
+  function toFloat(raw, convention) {
+    if (raw == null) return null;
+    var s = String(raw).trim().replace(/ /g, "").replace(/ /g, "");
+    if (!s) return null;
+    s = convention === "fr" ? s.replace(/\./g, "").replace(/,/g, ".") : s.replace(/,/g, "");
+    var v = parseFloat(s);
+    return Number.isNaN(v) ? null : v;
+  }
+
+  function round6(v) { return Math.round(v * 1e6) / 1e6; }
+
+  function fmtNum(v, dec) { return v == null ? "—" : v.toLocaleString("fr-FR", { minimumFractionDigits: dec, maximumFractionDigits: dec }); }
+  function fmtMoney(v, devise) {
+    if (v == null) return "—";
+    var sym = devise === "USD" ? "$" : (!devise || devise === "EUR") ? "€" : devise;
+    return fmtNum(v, 2) + " " + sym;
+  }
+  function fmtDate(d) { return d ? d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" }) : "—"; }
+
+  /* ============================================================
+     2. Modèle de ligne (équivalent ARLine)
+     ============================================================ */
+  function newLine(overrides) {
+    return Object.assign({
+      num_cmde: "", id_poste: "", produit: "", qte: null, unite: "", coeff: 1.0,
+      conditionnement: "", qte_cond: null, pu_ht: null, remise: 0.0, qte_a_recevoir: null,
+      date_confirmee: null, date_ar: null, num_ar: "", ref_fournisseur: "", fabricant: "",
+      ref_fabricant: "", devise: "", commentaires: "",
+      fournisseur: "", fichier: "", methode: "", date_souhaitee: null, total_annonce: null,
+      confiance: 1.0, anomalies: []
+    }, overrides || {});
+  }
+  function flag(l, niveau, message, cout) {
+    l.anomalies.push("[" + niveau + "] " + message);
+    l.confiance = Math.max(0, Math.round((l.confiance - (cout || 0)) * 100) / 100);
+  }
+  function niveau(l) {
+    var txt = l.anomalies.join(" ");
+    if (txt.indexOf("[BLOQUANT]") !== -1) return "BLOQUANT";
+    if (txt.indexOf("[A VERIFIER]") !== -1 || txt.indexOf("[AVERTISSEMENT]") !== -1) return "A CONTROLER";
+    return "OK";
+  }
+
+  /* ============================================================
+     3. Lecture PDF (pdf.js) — reconstruction du texte et des mots
+     ============================================================ */
+  async function pageItems(pdfDoc, pageNum) {
+    var page = await pdfDoc.getPage(pageNum);
+    var content = await page.getTextContent();
+    var out = [];
+    for (var i = 0; i < content.items.length; i++) {
+      var it = content.items[i];
+      if (it.str && it.str.length) out.push({ text: it.str, x0: it.transform[4], y: it.transform[5], width: it.width || 0 });
+    }
+    return out;
+  }
+
+  function itemsToText(items) {
+    if (!items.length) return "";
+    var sorted = items.slice().sort(function (a, b) { return (b.y - a.y) || (a.x0 - b.x0); });
+    var lines = [], current = [], currentY = null;
+    for (var i = 0; i < sorted.length; i++) {
+      var it = sorted[i];
+      if (currentY === null || Math.abs(it.y - currentY) <= 2.5) {
+        current.push(it);
+        if (currentY === null) currentY = it.y;
+      } else {
+        lines.push(current); current = [it]; currentY = it.y;
+      }
+    }
+    if (current.length) lines.push(current);
+    return lines.map(function (line) {
+      return line.slice().sort(function (a, b) { return a.x0 - b.x0; }).map(function (w) { return w.text; }).join(" ").replace(/[ \t]+/g, " ").trim();
+    }).join("\n");
+  }
+
+  async function extractDocText(pdfDoc) {
+    var parts = [];
+    for (var p = 1; p <= pdfDoc.numPages; p++) parts.push(itemsToText(await pageItems(pdfDoc, p)));
+    return parts.join("\n");
+  }
+
+  async function page1WordsExpanded(pdfDoc) {
+    var items = await pageItems(pdfDoc, 1);
+    var words = [];
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      var totalLen = it.text.length || 1, consumed = 0;
+      var parts = it.text.split(/(\s+)/);
+      for (var j = 0; j < parts.length; j++) {
+        var part = parts[j];
+        var partX = it.x0 + (consumed / totalLen) * it.width;
+        if (part.trim()) words.push({ text: part, x0: partX, top: -it.y });
+        consumed += part.length;
+      }
+    }
+    return words;
+  }
+
+  function texteDesColonnes(words, motifLigne, entetes) {
+    var bornes = [];
+    for (var i = 0; i < entetes.length; i++) {
+      var first = entetes[i].split(" ")[0];
+      var w = words.find(function (m) { return m.text === first; });
+      if (!w) return null;
+      bornes.push([entetes[i], w.x0 - 3]);
+    }
+    var re = new RegExp("^(?:" + motifLigne + ")$");
+    var cible = words.find(function (m) { return re.test(m.text); });
+    if (!cible) return null;
+    var ligne = words.filter(function (m) { return cible.top - 2 <= m.top && m.top <= cible.top + 14; })
+      .sort(function (a, b) { return (a.top - b.top) || (a.x0 - b.x0); });
+    var out = {};
+    bornes.forEach(function (b) { out[b[0]] = []; });
+    ligne.forEach(function (m) {
+      var col = null;
+      bornes.forEach(function (b) { if (m.x0 >= b[1]) col = b[0]; });
+      if (col) out[col].push(m.text);
+    });
+    var res = {};
+    bornes.forEach(function (b) { res[b[0]] = out[b[0]].join(" ").trim(); });
+    return res;
+  }
+
+  /* ============================================================
+     4. Classification fournisseur
+     ============================================================ */
+  var SIGNATURES = [
+    ["EBV Elektronik (Avnet)", ["EBV Elektronik", "avnet.com"]],
+    ["ICAPE", ["ICAPE", "Order confirmation"]],
+    ["Confidee GmbH", ["Confidee", "Sell-to Customer No"]],
+    ["POLYRACK", ["POLYRACK", "Aufbausysteme"]],
+    ["DUFLOT", ["DUFLOT", "ACCUSE RECEPTION"]]
+  ];
+  function classify(text, filename) {
+    var plain = stripAccents(text).toUpperCase();
+    for (var i = 0; i < SIGNATURES.length; i++) {
+      var keys = SIGNATURES[i][1];
+      if (keys.every(function (k) { return plain.indexOf(stripAccents(k).toUpperCase()) !== -1; })) return SIGNATURES[i][0];
+    }
+    var fn = stripAccents(filename || "").toUpperCase();
+    for (var j = 0; j < SIGNATURES.length; j++) {
+      if (fn.indexOf(stripAccents(SIGNATURES[j][0].split(" ")[0]).toUpperCase()) !== -1) return SIGNATURES[j][0];
+    }
+    return "INCONNU";
+  }
+
+  /* ============================================================
+     5. Parseurs dédiés — portage direct du prototype ar_extract.py
+     ============================================================ */
+  function parseEbv(text) {
+    var lines = [];
+    var numArM = text.match(/No:\s*(\d+)/);
+    var dateArM = text.match(/Date:\s*(\d{2}\.\d{2}\.\d{4})/);
+    var majM = stripAccents(text).match(/Mis a jour:\s*(\d{2}\.\d{2}\.\d{4})/);
+    var cmdeM = text.match(/No Commande:\s*(\S+)/);
+    var modification = text.indexOf("Modification d'AR") !== -1;
+
+    var blocRe = /^\s*(\d+)\s+(?:\(C\))?(\S+)\s+([\d.,]+)\s+([\d.,]+)(?:\s*\/\s*(\d+))?\s+([\d.,]+)\s*$/gm;
+    var postes = Array.from(text.matchAll(blocRe));
+    for (var i = 0; i < postes.length; i++) {
+      var m = postes[i];
+      var start = m.index, end = i + 1 < postes.length ? postes[i + 1].index : text.length;
+      var bloc = text.slice(start, end);
+      var l = newLine({ fournisseur: "EBV Elektronik (Avnet)", methode: "TEXTE" });
+      l.num_ar = numArM ? numArM[1] : "";
+      l.date_ar = majM ? toDate(majM[1]) : (dateArM ? toDate(dateArM[1]) : null);
+      l.num_cmde = cmdeM ? cmdeM[1] : "";
+      l.ref_fabricant = m[2];
+      l.qte = toFloat(m[3], "fr");
+      var pu = toFloat(m[4], "fr"), par = m[5] ? parseInt(m[5], 10) : 1;
+      l.pu_ht = pu != null ? round6(pu / par) : null;
+      l.total_annonce = toFloat(m[6], "fr");
+      l.devise = "EUR"; l.unite = "PCE"; l.qte_a_recevoir = l.qte;
+
+      var votre = bloc.match(/Votre No de commande:\s*(\S+)\s*\/\s*(\d+)/);
+      if (votre) { l.num_cmde = votre[1]; l.id_poste = votre[2].padStart(3, "0"); }
+      var prod = stripAccents(bloc).match(/Designation Client:\s*(\S+)/);
+      if (prod) l.produit = prod[1];
+      var fab = stripAccents(bloc).match(/Reference Fabricant:\s*(\S+)/);
+      if (fab) l.ref_fabricant = fab[1];
+      var suite = bloc.split("\n");
+      if (suite.length > 1) l.fabricant = suite[1].trim();
+      var mpq = bloc.match(/MPQ:\s*([\d.,]+)\s*(\w+)/);
+      if (mpq) { l.conditionnement = mpq[2]; l.qte_cond = toFloat(mpq[1], "fr"); }
+
+      var cad = bloc.match(/(\d{2}\.\d{2}\.\d{4})\s+([\d.,]+)\s+(\d{2}\.\d{2}\.\d{4})\s+([\d.,]+)/);
+      if (cad) { l.date_souhaitee = toDate(cad[1]); l.date_confirmee = toDate(cad[3]); l.qte_a_recevoir = toFloat(cad[4], "fr"); }
+      if (par > 1) l.commentaires = "PU source " + m[4] + " / " + par;
+      if (modification) l.commentaires = stripSemi(l.commentaires + " ; modification d'AR");
+      lines.push(l);
+    }
+    return lines;
+  }
+
+  function parseIcape(text) {
+    var l = newLine({ fournisseur: "ICAPE", methode: "TEXTE", unite: "PCB", devise: "USD" });
+    var m = text.match(/Number\s+(\d+)/); l.num_ar = m ? m[1] : "";
+    m = text.match(/Creation date\s+([A-Za-z]+ \d{1,2}, \d{4})/); l.date_ar = m ? toDate(m[1]) : null;
+    m = text.match(/Customer Order Reference\s+(\S+)/); l.num_cmde = m ? m[1] : "";
+    m = text.match(/Material:\s*(\S+)\s+(\S+)/); if (m) { l.produit = m[2]; l.ref_fournisseur = m[1]; }
+    m = text.match(/Quantity\s*:\s*([\d.,]+)\s+(\w+)/); if (m) { l.qte = toFloat(m[1], "en"); l.unite = m[2]; }
+    m = text.match(/Requested delivery date\s*:\s*([A-Za-z]+ \d{1,2}, \d{4})/); l.date_souhaitee = m ? toDate(m[1]) : null;
+    var idx = text.indexOf("Confirmations:");
+    var afterConf = idx === -1 ? text : text.slice(idx + "Confirmations:".length);
+    var blocConf = afterConf.split("Reference Doc.")[0];
+    m = blocConf.match(/([A-Za-z]+ \d{1,2}, \d{4})\s+([\d.,]+)\s+(\w+)/);
+    if (m) { l.date_confirmee = toDate(m[1]); l.qte_a_recevoir = toFloat(m[2], "en"); }
+    m = text.match(/Unit Price\s+([\d.,]+)\s+(\w{3})\s+per\s+([\d.,]+)\s+(\w+)\s+([\d.,]+)/);
+    if (m) {
+      var pu = toFloat(m[1], "en"), par = toFloat(m[3], "en") || 1;
+      l.pu_ht = round6(pu / par); l.devise = m[2]; l.total_annonce = toFloat(m[5], "en");
+      l.conditionnement = m[4]; l.qte_cond = par;
+      l.commentaires = "PU source " + m[1] + " " + m[2] + " / " + m[3] + " " + m[4];
+    }
+    var ship = text.match(/Shipping type:\s*(\w+)/);
+    if (ship) l.commentaires = stripSemi(l.commentaires + " ; expedition " + ship[1]);
+    return [l];
+  }
+
+  function parseConfidee(text, words) {
+    var l = newLine({ fournisseur: "Confidee GmbH", methode: "TEXTE" });
+    var m = text.match(/Order No\.\s*(\S+)/); l.num_ar = m ? m[1] : "";
+    m = text.match(/Document Date\s+(\d{1,2} [A-Za-z]{3} \d{4})/); l.date_ar = m ? toDate(m[1]) : null;
+    m = text.match(/Your Reference\s+(\S+)/);
+    if (m) {
+      var ref = m[1];
+      if (ref.indexOf("_") !== -1) {
+        var idx = ref.lastIndexOf("_");
+        l.num_cmde = ref.slice(0, idx);
+        l.id_poste = ref.slice(idx + 1).padStart(3, "0");
+        flag(l, "A VERIFIER", "poste deduit du suffixe de '" + ref + "' : regle a confirmer avec AW", 0.15);
+      } else { l.num_cmde = ref; }
+    }
+    var lineRe = /^(ART\d+)\s+(\S+)\s+(.+?)\s+([A-Z]{3})\s+(\d{1,2} [A-Za-z]{3} \d{4})\s+([\d.,]+)\s+(\w+)\s+([A-Z]{3})\s+([\d.,]+)\s+([\d.,]+)\s*$/m;
+    m = text.match(lineRe);
+    if (m) {
+      l.ref_fournisseur = m[1]; l.produit = m[2]; l.date_confirmee = toDate(m[5]);
+      l.qte = l.qte_a_recevoir = toFloat(m[6], "en"); l.unite = m[7]; l.devise = m[8];
+      l.pu_ht = toFloat(m[9], "en"); l.total_annonce = toFloat(m[10], "en");
+    } else { flag(l, "BLOQUANT", "ligne de poste illisible", 0.5); }
+
+    var cols = texteDesColonnes(words, "ART\\d+", ["Description", "Manufacturer", "CoO"]);
+    if (cols) { l.ref_fabricant = cleanLabel(cols["Description"]); l.fabricant = cleanLabel(cols["Manufacturer"]); }
+    else if (m) { l.ref_fabricant = cleanLabel(m[3]); flag(l, "A VERIFIER", "separation description / fabricant non fiable", 0.1); }
+    return [l];
+  }
+
+  function parsePolyrack(text) {
+    var l = newLine({ fournisseur: "POLYRACK", methode: "TEXTE", devise: "EUR" });
+    var m = stripAccents(text).match(/N. \/ Date\s+(\d+)\s*\/\s*(\d{2}\.\d{2}\.\d{4})/);
+    if (m) { l.num_ar = m[1]; l.date_ar = toDate(m[2]); }
+    m = text.match(/votre commande:\s*(\S+)\s+du\s+(\d{2}\.\d{2}\.\d{4})/); if (m) l.num_cmde = m[1];
+    m = text.match(/^\s*(\d+)\s+(\d+)\s+(.+?)\s+([\d.,]+)\s+(\w+)\s+([\d.,]+)\s*$/m);
+    if (m) {
+      l.ref_fournisseur = m[2]; l.ref_fabricant = cleanLabel(m[3]);
+      l.qte = l.qte_a_recevoir = toFloat(m[4], "fr"); l.unite = m[5]; l.pu_ht = toFloat(m[6], "fr");
+      l.commentaires = "poste fournisseur " + m[1];
+    }
+    m = stripAccents(text).match(/Votre n. d'article\s*:\s*(\S+)/); if (m) l.produit = m[1];
+    m = text.match(/Date de livraison:\s*(\d{2}\.\d{2}\.\d{4})/); l.date_confirmee = m ? toDate(m[1]) : null;
+    if (text.indexOf("Livraison gratuite") !== -1) l.commentaires = stripSemi(l.commentaires + " ; livraison gratuite (PU 0)");
+    l.total_annonce = (l.qte || 0) * (l.pu_ht || 0);
+    return [l];
+  }
+
+  function parseScan(ocrData) {
+    var out = [];
+    (ocrData.postes || []).forEach(function (row) {
+      var l = newLine({
+        fournisseur: ocrData.fournisseur, methode: "OCR", num_cmde: ocrData.num_cmde,
+        num_ar: ocrData.num_ar || "", date_ar: toDate(ocrData.date_ar), devise: ocrData.devise || "EUR"
+      });
+      l.id_poste = row.poste; l.produit = row.produit; l.ref_fabricant = row.libelle;
+      l.qte = l.qte_a_recevoir = row.qte; l.unite = row.unite; l.pu_ht = row.pu; l.total_annonce = row.total;
+      l.date_confirmee = toDate(row.date_livraison); l.date_souhaitee = l.date_confirmee;
+      l.commentaires = "AR = BC retourne signe (scan)";
+      flag(l, "A VERIFIER", "valeurs issues de l'OCR, relecture humaine requise", 0.35);
+      out.push(l);
+    });
+    return out;
+  }
+
+  /* ============================================================
+     6. Contrôles de cohérence
+     ============================================================ */
+  var ECART_TOLERE_JOURS = 0;
+  var CONFIRMED_DATE_TO_CONFIRM = Date.UTC(9999, 11, 31);
+
+  function controler(l) {
+    [["num_cmde", "N. cmde fournisseur"], ["id_poste", "Id poste cmde fournisseur"], ["pu_ht", "Prix unitaire"],
+     ["qte_a_recevoir", "Solde a livrer"], ["date_confirmee", "Date confirmee"]].forEach(function (pair) {
+      var v = l[pair[0]];
+      if (!v && v !== 0) flag(l, "BLOQUANT", "colonne obligatoire absente : " + pair[1], 0.4);
+    });
+    if (l.pu_ht != null && l.qte && l.total_annonce != null) {
+      var calc = Math.round(l.pu_ht * l.qte * 100) / 100;
+      var totalR = Math.round(l.total_annonce * 100) / 100;
+      if (Math.abs(calc - totalR) > 0.02) flag(l, "BLOQUANT", "PU x Qte = " + calc + " != total AR " + l.total_annonce, 0.4);
+    }
+    if (l.num_cmde && !/^A\d{9}$/.test(l.num_cmde)) flag(l, "AVERTISSEMENT", "n. de commande hors format AW (A + 9 chiffres) : rapprochement requis", 0.2);
+    if (l.date_confirmee && !l.date_souhaitee) flag(l, "INFO", "AR sans date souhaitee : controle d'ecart de delai impossible", 0.0);
+    if (l.date_confirmee && l.date_souhaitee) {
+      var ecart = Math.round((l.date_confirmee - l.date_souhaitee) / 86400000);
+      if (ecart > ECART_TOLERE_JOURS) flag(l, "AVERTISSEMENT", "retard confirme de " + ecart + " jours", 0.1);
+    }
+    if (l.date_confirmee && l.date_confirmee.getTime() === CONFIRMED_DATE_TO_CONFIRM) flag(l, "AVERTISSEMENT", "date de livraison a confirmer (31.12.9999)", 0.1);
+    if (l.devise && l.devise !== "EUR") flag(l, "INFO", "devise " + l.devise + " : conversion / controle de change", 0.0);
+    if (l.pu_ht === 0) flag(l, "INFO", "prix unitaire nul (gratuit / remplacement)", 0.0);
+  }
+
+  /* ============================================================
+     7. Traitement d'un fichier
+     ============================================================ */
+  function finalize(lignes, filename) {
+    lignes.forEach(function (l) { l.fichier = filename; if (!l.methode) l.methode = "TEXTE"; controler(l); });
+    return lignes;
+  }
+
+  async function traiterFichier(file, ocrData) {
+    var buf = await file.arrayBuffer();
+    var pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
+    var text = await extractDocText(pdfDoc);
+    var hasText = text.trim().length > 0;
+
+    if (!hasText) {
+      if (ocrData) return finalize(parseScan(ocrData), file.name);
+      var l0 = newLine({ fichier: file.name, fournisseur: classify("", file.name) });
+      flag(l0, "BLOQUANT", "PDF sans couche texte (scan) : dépose son JSON OCR pour le traiter", 1.0);
+      return finalize([l0], file.name);
+    }
+
+    var fournisseur = classify(text, file.name);
+    var lignes;
+    if (fournisseur === "EBV Elektronik (Avnet)") lignes = parseEbv(text);
+    else if (fournisseur === "ICAPE") lignes = parseIcape(text);
+    else if (fournisseur === "Confidee GmbH") lignes = parseConfidee(text, await page1WordsExpanded(pdfDoc));
+    else if (fournisseur === "POLYRACK") lignes = parsePolyrack(text);
+    else if (fournisseur === "DUFLOT") {
+      if (ocrData) lignes = parseScan(ocrData);
+      else { var l1 = newLine({ fichier: file.name, fournisseur: "DUFLOT" }); flag(l1, "BLOQUANT", "AR Duflot : dépose le JSON OCR pour extraire les postes", 1.0); lignes = [l1]; }
+    } else { var l2 = newLine({ fichier: file.name }); flag(l2, "BLOQUANT", "fournisseur non reconnu : parseur dédié requis", 1.0); lignes = [l2]; }
+
+    return finalize(lignes, file.name);
+  }
+
+  /* ============================================================
+     8. Export Excel ED36 (ExcelJS) — 3 feuilles, colonnes A..S
+     ============================================================ */
+  var COLUMNS = [
+    ["N° cmde", "num_cmde", 12, null, true],
+    ["Id", "id_poste", 6, "@", true],
+    ["Produit", "produit", 12, "@", false],
+    ["Qté", "qte", 12, "#,##0.000", false],
+    ["Unité", "unite", 8, null, false],
+    ["Coeff", "coeff", 12, "#,##0.000", false],
+    ["Conditionnement", "conditionnement", 16, null, false],
+    ["Qté/cond", "qte_cond", 12, "#,##0.000", false],
+    ["PU HT", "pu_ht", 12, "#,##0.000000", true],
+    ["Remise", "remise", 9, "#,##0.000", false],
+    ["Qté à recv.", "qte_a_recevoir", 12, "#,##0.000", true],
+    ["Date confirmée", "date_confirmee", 14, "dd/mm/yyyy", true],
+    ["Date AR", "date_ar", 12, "dd/mm/yyyy", false],
+    ["N°AR fournisseur", "num_ar", 16, "@", false],
+    ["Réf. fournisseur", "ref_fournisseur", 16, "@", false],
+    ["Fabricant", "fabricant", 26, null, false],
+    ["Réf. fabricant", "ref_fabricant", 26, null, false],
+    ["Devise", "devise", 8, null, false],
+    ["Commentaires", "commentaires", 46, null, false]
+  ];
+  var BLEU = "FF1F3864", BLEU_CLAIR = "FFD9E2F3", ORANGE = "FFFCE4D6", ROUGE = "FFF8CBAD";
+  function thinBorder() { var s = { style: "thin", color: { argb: "FFBFBFBF" } }; return { top: s, bottom: s, left: s, right: s }; }
+  function colLetter(n) { var s = ""; while (n > 0) { var m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; }
+
+  async function buildWorkbook(lignes) {
+    var wb = new ExcelJS.Workbook();
+
+    var ws = wb.addWorksheet("Import AR");
+    ws.columns = COLUMNS.map(function (c) { return { width: c[2] }; });
+    var hr = ws.addRow(COLUMNS.map(function (c) { return c[0]; }));
+    hr.eachCell(function (c) {
+      c.font = { name: "Arial", bold: true, size: 10, color: { argb: "FFFFFFFF" } };
+      c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: BLEU } };
+      c.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+      c.border = thinBorder();
+    });
+    hr.height = 28;
+    ws.views = [{ state: "frozen", ySplit: 1 }];
+
+    lignes.forEach(function (l) {
+      var niv = niveau(l);
+      var row = ws.addRow(COLUMNS.map(function (c) { return l[c[1]]; }));
+      COLUMNS.forEach(function (c, i) {
+        var cell = row.getCell(i + 1);
+        cell.font = { name: "Arial", size: 10 };
+        cell.border = thinBorder();
+        if (c[3]) cell.numFmt = c[3];
+        var val = l[c[1]], oblig = c[4];
+        var empty = val === null || val === undefined || val === "";
+        if (empty && oblig) cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: ROUGE } };
+        else if (niv === "A CONTROLER" && oblig) cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: ORANGE } };
+      });
+    });
+    ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: Math.max(2, lignes.length + 1), column: COLUMNS.length } };
+
+    var wc = wb.addWorksheet("Contrôles");
+    wc.columns = [34, 24, 9, 14, 7, 14, 10, 78].map(function (w) { return { width: w }; });
+    var hr2 = wc.addRow(["Fichier", "Fournisseur", "Méthode", "N° cmde", "Poste", "Statut", "Confiance", "Anomalies"]);
+    hr2.eachCell(function (c) {
+      c.font = { name: "Arial", bold: true, size: 10, color: { argb: "FFFFFFFF" } };
+      c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: BLEU } };
+      c.border = thinBorder();
+    });
+    lignes.forEach(function (l) {
+      var niv = niveau(l);
+      var row = wc.addRow([l.fichier, l.fournisseur, l.methode, l.num_cmde, l.id_poste, niv, l.confiance, l.anomalies.join(" | ") || "-"]);
+      row.eachCell(function (cell, colNumber) {
+        cell.font = { name: "Arial", size: 10 };
+        cell.border = thinBorder();
+        cell.alignment = { vertical: "top", wrapText: colNumber === 8 };
+        if (colNumber === 6) cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: niv === "BLOQUANT" ? ROUGE : (niv === "A CONTROLER" ? ORANGE : BLEU_CLAIR) } };
+        if (colNumber === 7) cell.numFmt = "0.00";
+      });
+    });
+    wc.views = [{ state: "frozen", ySplit: 1 }];
+
+    var wp = wb.addWorksheet("Paramétrage ED36");
+    wp.columns = [{ width: 42 }, { width: 20 }, { width: 62 }];
+    [
+      ["Paramètre d'import", "Valeur", "Commentaire"],
+      ["Nombre de lignes d'entête à ignorer", 1, "ligne 1 = titres de colonnes"],
+      ["Écart toléré date confirmée / souhaitée (j)", 0, "au-delà, le traitement lève un avertissement"],
+      ["Date confirmée à utiliser en cas d'allocation", "00/00/0000", "paramètre Excalibur"],
+      ["", "", ""],
+      ["Mapping colonne → zone Excalibur", "Colonne", "Obligatoire"]
+    ].forEach(function (r) { wp.addRow(r); });
+    COLUMNS.forEach(function (c, i) { wp.addRow([c[0], colLetter(i + 1), c[4] ? "OUI" : "facultative"]); });
+    wp.eachRow(function (row, rowNumber) {
+      row.eachCell(function (cell, colNumber) {
+        var bold = rowNumber === 1 || rowNumber === 6 || (colNumber === 3 && cell.value === "OUI");
+        cell.font = { name: "Arial", size: 10, bold: bold };
+        cell.border = thinBorder();
+        if (rowNumber === 1 || rowNumber === 6) cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: BLEU_CLAIR } };
+      });
+    });
+
+    return wb;
+  }
+
+  /* ============================================================
+     9. Interface — sélection des fichiers
+     ============================================================ */
+  var dropzone = document.getElementById("dropzone");
+  var fileInput = document.getElementById("file-input");
+  var fileListEl = document.getElementById("file-list");
+  var convertBtn = document.getElementById("convert-btn");
+  var clearBtn = document.getElementById("clear-btn");
+  var convertStatus = document.getElementById("convert-status");
+  var downloadBtn = document.getElementById("download-btn");
+  var resultsTag = document.getElementById("results-tag");
+  var resultsBody = document.getElementById("results-body");
+
+  var entries = []; // {id, pdfFile, ocrFile}
+  var seq = 0;
+  var currentWorkbookBlob = null;
+
+  function addFiles(fileList) {
+    Array.from(fileList).forEach(function (f) {
+      if (f.type !== "application/pdf" && !/\.pdf$/i.test(f.name)) return;
+      entries.push({ id: ++seq, pdfFile: f, ocrFile: null });
+    });
+    renderFileList();
+  }
+
+  function renderFileList() {
+    fileListEl.innerHTML = "";
+    entries.forEach(function (entry) {
+      var row = document.createElement("div");
+      row.className = "file-row";
+
+      var name = document.createElement("span");
+      name.className = "file-row__name";
+      name.textContent = entry.pdfFile.name;
+      row.appendChild(name);
+
+      var size = document.createElement("span");
+      size.className = "file-row__size";
+      size.textContent = (entry.pdfFile.size / 1024).toFixed(0) + " Ko";
+      row.appendChild(size);
+
+      var ocrLabel = document.createElement("label");
+      ocrLabel.className = "file-row__ocr" + (entry.ocrFile ? " attached" : "");
+      ocrLabel.textContent = entry.ocrFile ? ("OCR : " + entry.ocrFile.name) : "+ JSON OCR (si scan)";
+      var ocrInput = document.createElement("input");
+      ocrInput.type = "file"; ocrInput.accept = "application/json"; ocrInput.hidden = true;
+      ocrInput.addEventListener("change", function () {
+        if (ocrInput.files && ocrInput.files[0]) { entry.ocrFile = ocrInput.files[0]; renderFileList(); }
+      });
+      ocrLabel.appendChild(ocrInput);
+      row.appendChild(ocrLabel);
+
+      var remove = document.createElement("button");
+      remove.className = "file-row__remove"; remove.type = "button"; remove.setAttribute("aria-label", "Retirer " + entry.pdfFile.name);
+      remove.textContent = "✕";
+      remove.addEventListener("click", function () { entries = entries.filter(function (e) { return e.id !== entry.id; }); renderFileList(); });
+      row.appendChild(remove);
+
+      fileListEl.appendChild(row);
+    });
+    convertBtn.disabled = entries.length === 0 || !libOk;
+    clearBtn.hidden = entries.length === 0;
+  }
+
+  dropzone.addEventListener("click", function () { fileInput.click(); });
+  dropzone.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } });
+  fileInput.addEventListener("change", function () { addFiles(fileInput.files); fileInput.value = ""; });
+  ["dragenter", "dragover"].forEach(function (evt) {
+    dropzone.addEventListener(evt, function (e) { e.preventDefault(); dropzone.classList.add("drag"); });
+  });
+  ["dragleave", "drop"].forEach(function (evt) {
+    dropzone.addEventListener(evt, function (e) { e.preventDefault(); dropzone.classList.remove("drag"); });
+  });
+  dropzone.addEventListener("drop", function (e) {
+    if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files);
+  });
+  clearBtn.addEventListener("click", function () { entries = []; renderFileList(); });
+
+  function setStatus(cls, text) {
+    convertStatus.innerHTML = "";
+    var span = document.createElement("span");
+    span.className = cls; span.textContent = text;
+    convertStatus.appendChild(span);
+  }
+
+  convertBtn.addEventListener("click", async function () {
+    if (!libOk || entries.length === 0) return;
+    convertBtn.disabled = true;
+    var lignesByFile = {};
+    try {
+      for (var i = 0; i < entries.length; i++) {
+        var entry = entries[i];
+        setStatus("muted", "traitement " + (i + 1) + "/" + entries.length + " — " + entry.pdfFile.name + " …");
+        var ocrData = null;
+        if (entry.ocrFile) { try { ocrData = JSON.parse(await entry.ocrFile.text()); } catch (e) { ocrData = null; } }
+        var lignes = await traiterFichier(entry.pdfFile, ocrData);
+        lignesByFile[entry.pdfFile.name + "#" + entry.id] = lignes;
+      }
+      setStatus("ok", "terminé · " + entries.length + " fichier(s)");
+      await renderResults(lignesByFile, false);
+    } catch (err) {
+      console.error(err);
+      setStatus("crit", "erreur : " + (err && err.message ? err.message : "traitement impossible"));
+    } finally {
+      convertBtn.disabled = entries.length === 0;
+    }
+  });
+
+  /* ============================================================
+     10. Rendu des résultats + téléchargement
+     ============================================================ */
+  async function renderResults(lignesByFile, isExample) {
+    var allLines = [];
+    Object.keys(lignesByFile).forEach(function (k) { allLines = allLines.concat(lignesByFile[k]); });
+
+    var nbFichiers = Object.keys(lignesByFile).length;
+    var nbPostes = allLines.length;
+    var nbOk = allLines.filter(function (l) { return niveau(l) === "OK"; }).length;
+    var nbWarn = allLines.filter(function (l) { return niveau(l) === "A CONTROLER"; }).length;
+    var nbCrit = allLines.filter(function (l) { return niveau(l) === "BLOQUANT"; }).length;
+
+    resultsTag.textContent = isExample ? "Exemple préchargé" : (nbFichiers + " fichier(s) convertis");
+
+    resultsBody.innerHTML = "";
+
+    var statRow = document.createElement("div");
+    statRow.className = "stat-row";
+    statRow.style.marginTop = "var(--ads-space-4)";
+    [[nbFichiers, "fichiers", ""], [nbPostes, "postes extraits", ""], [nbOk, "OK", "ok"], [nbWarn, "à contrôler", "warn"], [nbCrit, "bloqués", "crit"]]
+      .forEach(function (s) {
+        var d = document.createElement("div");
+        d.className = "stat" + (s[2] ? " " + s[2] : "");
+        d.innerHTML = "<strong>" + s[0] + "</strong><span>" + s[1] + "</span>";
+        statRow.appendChild(d);
+      });
+    resultsBody.appendChild(statRow);
+
+    if (nbCrit > 0) {
+      var alert = document.createElement("div");
+      alert.className = "ads-alert ads-alert--crit";
+      alert.style.marginTop = "var(--ads-space-4)";
+      var files = Object.keys(lignesByFile).filter(function (k) { return lignesByFile[k].some(function (l) { return niveau(l) === "BLOQUANT"; }); })
+        .map(function (k) { return lignesByFile[k][0].fichier; });
+      alert.innerHTML = "<span class=\"ads-alert__mark\"></span><div><strong style=\"color:var(--ads-text-strong)\">" + nbCrit + " poste(s) bloqué(s).</strong> " +
+        escapeHtml(files.join(", ")) + " — colonne(s) obligatoire(s) manquante(s) ou incohérente(s), à corriger avant import.</div>";
+      resultsBody.appendChild(alert);
+    }
+
+    var tableWrap = document.createElement("div");
+    tableWrap.className = "table-wrap";
+    tableWrap.style.marginTop = "var(--ads-space-4)";
+    var table = document.createElement("table");
+    table.className = "ads-table";
+    table.innerHTML = "<thead><tr><th>Fichier</th><th>Fournisseur</th><th>Méthode</th><th class=\"ads-num\">Postes</th><th>Statut</th><th>Note</th></tr></thead>";
+    var tbody = document.createElement("tbody");
+    Object.keys(lignesByFile).forEach(function (k) {
+      var lignes = lignesByFile[k];
+      var worst = lignes.reduce(function (acc, l) {
+        var n = niveau(l);
+        var rank = { "BLOQUANT": 2, "A CONTROLER": 1, "OK": 0 };
+        return rank[n] > rank[acc] ? n : acc;
+      }, "OK");
+      var badgeCls = worst === "BLOQUANT" ? "ads-badge--crit" : (worst === "A CONTROLER" ? "ads-badge--warn" : "ads-badge--ok");
+      var badgeTxt = worst === "BLOQUANT" ? "bloqué" : (worst === "A CONTROLER" ? "à contrôler" : "OK");
+      var noteSrc = lignes.find(function (l) { return l.anomalies.length; });
+      var note = noteSrc ? noteSrc.anomalies[0].replace(/^\[[^\]]+\]\s*/, "") : "—";
+      var tr = document.createElement("tr");
+      tr.innerHTML = "<td class=\"file\">" + escapeHtml(lignes[0].fichier) + "</td>" +
+        "<td>" + escapeHtml(lignes[0].fournisseur || "INCONNU") + "</td>" +
+        "<td>" + escapeHtml(lignes[0].methode || "—") + "</td>" +
+        "<td class=\"ads-num\">" + lignes.length + "</td>" +
+        "<td><span class=\"ads-badge " + badgeCls + "\">" + badgeTxt + "</span></td>" +
+        "<td class=\"note\">" + escapeHtml(note) + "</td>";
+      tbody.appendChild(tr);
+
+      var detail = document.createElement("details");
+      detail.className = "file-detail";
+      var summary = document.createElement("summary");
+      summary.textContent = "Détail — " + lignes[0].fichier + " (" + lignes.length + " poste" + (lignes.length > 1 ? "s" : "") + ")";
+      detail.appendChild(summary);
+      var dTableWrap = document.createElement("div");
+      dTableWrap.className = "table-wrap";
+      var dTable = document.createElement("table");
+      dTable.className = "ads-table";
+      dTable.innerHTML = "<thead><tr><th>Poste</th><th>Produit</th><th class=\"ads-num\">Qté</th><th class=\"ads-num\">PU HT</th><th>Date confirmée</th><th>Statut</th><th>Anomalies</th></tr></thead>";
+      var dTbody = document.createElement("tbody");
+      lignes.forEach(function (l) {
+        var n = niveau(l);
+        var bc = n === "BLOQUANT" ? "ads-badge--crit" : (n === "A CONTROLER" ? "ads-badge--warn" : "ads-badge--ok");
+        var bt = n === "BLOQUANT" ? "bloqué" : (n === "A CONTROLER" ? "à contrôler" : "OK");
+        var dtr = document.createElement("tr");
+        dtr.innerHTML = "<td>" + escapeHtml(l.id_poste || "—") + "</td>" +
+          "<td class=\"file\">" + escapeHtml(l.produit || l.ref_fabricant || "—") + "</td>" +
+          "<td class=\"ads-num\">" + fmtNum(l.qte, 0) + "</td>" +
+          "<td class=\"ads-num\">" + fmtMoney(l.pu_ht, l.devise) + "</td>" +
+          "<td>" + fmtDate(l.date_confirmee) + "</td>" +
+          "<td><span class=\"ads-badge " + bc + "\">" + bt + "</span></td>" +
+          "<td class=\"note\">" + escapeHtml(l.anomalies.map(function (a) { return a.replace(/^\[[^\]]+\]\s*/, ""); }).join(" | ") || "—") + "</td>";
+        dTbody.appendChild(dtr);
+      });
+      dTable.appendChild(dTbody);
+      dTableWrap.appendChild(dTable);
+      detail.appendChild(dTableWrap);
+
+      var detailRow = document.createElement("tr");
+      var detailCell = document.createElement("td");
+      detailCell.colSpan = 6;
+      detailCell.style.background = "var(--ads-canvas-deep)";
+      detailCell.appendChild(detail);
+      detailRow.appendChild(detailCell);
+      tbody.appendChild(detailRow);
+    });
+    table.appendChild(tbody);
+    tableWrap.appendChild(table);
+    resultsBody.appendChild(tableWrap);
+
+    resultsEl().classList.remove("flash"); void resultsEl().offsetWidth; resultsEl().classList.add("flash");
+
+    try {
+      var wb = await buildWorkbook(allLines);
+      var buffer = await wb.xlsx.writeBuffer();
+      currentWorkbookBlob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      downloadBtn.disabled = false;
+    } catch (e) {
+      console.error(e);
+      currentWorkbookBlob = null;
+      downloadBtn.disabled = true;
+    }
+  }
+
+  function resultsEl() { return document.getElementById("results"); }
+
+  function escapeHtml(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  downloadBtn.addEventListener("click", async function () {
+    if (!currentWorkbookBlob) return;
+    downloadBtn.disabled = true;
+    try {
+      var ns = downloadsNs || (window.claude && window.claude.use ? await window.claude.use("downloads") : null);
+      if (!ns) { setStatus("crit", "téléchargement indisponible dans cette vue"); return; }
+      await ns.save({ filename: "AR_import_ED36.xlsx", data: currentWorkbookBlob });
+    } catch (e) {
+      console.error(e);
+      if (e && e.code !== "declined") setStatus("crit", "téléchargement impossible : " + (e && e.code ? e.code : "erreur"));
+    } finally {
+      downloadBtn.disabled = false;
+    }
+  });
+
+  /* ============================================================
+     11. État initial : exemple réel préchargé (Duflot, scan + OCR)
+     ============================================================ */
+  var EXAMPLE_OCR_DUFLOT = {
+    fournisseur: "DUFLOT", num_cmde: "A202300560", num_ar: "A202300560 A", date_ar: "05/10/2023", devise: "EUR",
+    postes: [
+      { poste: "001", produit: "180965", libelle: "MNG 2U CHASSIS", qte: 101.0, unite: "UNITE", pu: 57.9, total: 5847.9, date_livraison: "21/11/2023" },
+      { poste: "002", produit: "180966", libelle: "MNG 2U CAPOT", qte: 101.0, unite: "UNITE", pu: 21.9, total: 2211.9, date_livraison: "21/11/2023" },
+      { poste: "003", produit: "930267", libelle: "FRAIS DE PORT", qte: 1.0, unite: "UNITE", pu: 385.0, total: 385.0, date_livraison: "21/11/2023" },
+      { poste: "004", produit: "930267", libelle: "FRAIS DE PORT EXPOSITION 101 PIECES CDE A202300242", qte: 1.0, unite: "UNITE", pu: 385.0, total: 385.0, date_livraison: "21/11/2023" }
+    ]
+  };
+
+  renderFileList();
+  if (libOk) {
+    var exampleLignes = finalize(parseScan(EXAMPLE_OCR_DUFLOT), "AR_Duflot.pdf (exemple)");
+    renderResults({ "AR_Duflot.pdf (exemple)": exampleLignes }, true);
+  } else {
+    resultsBody.innerHTML = "<p class=\"err\">Librairies indisponibles — impossible de charger l'exemple.</p>";
+  }
+})();
+</script>

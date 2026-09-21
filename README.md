@@ -59,6 +59,12 @@ Le pipeline reste utilisable directement sans l'interface web :
 python3 -m ar2ed36.ar_extract <dossier_pdf_entrée> <fichier_xlsx_sortie>
 ```
 
+## Version navigateur (sans serveur)
+
+`web/index.html` est une variante 100% client de cet outil (pdf.js +
+ExcelJS, aucun fichier envoyé à un serveur), à la charte du design
+system Adesio — voir `web/README.md`.
+
 ## Limites connues du prototype
 
 - Un seul poste manquant d'Id poste client (ICAPE, Polyrack) bloque
