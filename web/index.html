@@ -318,7 +318,23 @@
     }
     if (current.length) lines.push(current);
     return lines.map(function (line) {
-      return line.slice().sort(function (a, b) { return a.x0 - b.x0; }).map(function (w) { return w.text; }).join(" ").replace(/[ \t]+/g, " ").trim();
+      // pdf.js often splits a single word into several items at kerning-pair
+      // boundaries: joining every item with a space would inject spurious
+      // spaces mid-word and break the regexes below. Only insert a space
+      // when there is an actual visual gap between two items.
+      var sortedLine = line.slice().sort(function (a, b) { return a.x0 - b.x0; });
+      var out = "", prevEnd = null;
+      for (var j = 0; j < sortedLine.length; j++) {
+        var w = sortedLine[j];
+        if (prevEnd !== null) {
+          var gap = w.x0 - prevEnd;
+          var charW = (w.width && w.text.length) ? w.width / w.text.length : 3;
+          if (gap > Math.max(1, charW * 0.35)) out += " ";
+        }
+        out += w.text;
+        prevEnd = w.x0 + (w.width || 0);
+      }
+      return out.replace(/[ \t]+/g, " ").trim();
     }).join("\n");
   }
 
