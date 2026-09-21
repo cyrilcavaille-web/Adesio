@@ -175,7 +175,7 @@
         <button class="ads-btn ads-btn--quiet ads-btn--sm" id="clear-btn" hidden>Tout retirer</button>
         <span id="convert-status" class="log"></span>
       </div>
-      <p class="hint">AR scanné sans couche texte (ex. Duflot, bon de commande retourné signé) : attache le JSON OCR correspondant sur sa ligne pour en extraire les postes.</p>
+      <p class="hint">AR scanné sans couche texte (ex. Duflot, bon de commande retourné signé) : l'OCR automatique se déclenche seul pour ce type de document (peut prendre 15-30 s). Pour un autre modèle de scan, attache directement son JSON OCR sur la ligne du fichier.</p>
       <p class="err" id="lib-error" hidden>Les librairies de lecture PDF / génération Excel n'ont pas pu se charger. Recharge la page ou réessaie plus tard.</p>
     </section>
 
@@ -196,6 +196,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="assets/tesseract/tesseract.min.js"></script>
 <script>
 (function () {
   "use strict";
@@ -211,6 +212,7 @@
   })();
 
   var libOk = (typeof pdfjsLib !== "undefined") && (typeof ExcelJS !== "undefined");
+  var ocrLibOk = typeof Tesseract !== "undefined";
   if (!libOk) {
     document.getElementById("lib-error").hidden = false;
   } else {
@@ -220,7 +222,7 @@
   /* ============================================================
      1. Utilitaires
      ============================================================ */
-  function stripAccents(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function stripAccents(s) { return s.normalize("NFD").replace(/\p{Mn}/gu, ""); }
 
   function cleanLabel(s) {
     s = s.replace(/\s+/g, " ").trim();
@@ -555,6 +557,82 @@
     return out;
   }
 
+  // AR scanné = le propre bon de commande Analog Way, retourné signé par le
+  // fournisseur (cas Duflot et assimilés). Reconnu par son en-tête "COMMANDE
+  // N°..." ; les lignes de poste sont retrouvées par ancrage sur "UNITE" +
+  // date + prix + total (toujours présents et bien reconnus par l'OCR, même
+  // quand le libellé ou le n° de poste sont légèrement dégradés).
+  function isAwOwnTemplate(ocrText) {
+    return /COMMANDE\s*N.?\s*A\d{9}/.test(ocrText);
+  }
+
+  function parseAwScan(ocrText) {
+    var mCmde = ocrText.match(/COMMANDE\s*N.?\s*(A\d{9})\s*([A-Z])\s+([A-ZÀ-Ü][A-ZÀ-Ü'\- ]{0,30})/);
+    var mDateAr = ocrText.match(/\ble\s+(\d{2}\/\d{2}\/\d{4})/);
+    var num_cmde = mCmde ? mCmde[1] : "";
+    var version = mCmde ? mCmde[2] : "";
+    var fournisseur = mCmde ? mCmde[3].trim().split(/\s+/)[0] : "INCONNU (scan)";
+    var num_ar = version ? (num_cmde + " " + version) : num_cmde;
+    var date_ar = mDateAr ? toDate(mDateAr[1]) : null;
+
+    var lines = ocrText.split("\n");
+    var out = [];
+    lines.forEach(function (line, idx) {
+      var m = line.match(/UNITE\s+(\d{2}\/\d{2}\/\d{4})[^\d\n]{0,4}([\d.,]+)\s+([\d.,]+)/);
+      if (!m) return;
+      var prefix = line.slice(0, m.index);
+      var qtyM = prefix.match(/([\d.,]+)\s*$/);
+      var libellePart = qtyM ? prefix.slice(0, qtyM.index) : prefix;
+      var libelle = cleanLabel(libellePart.replace(/^\s*\d{2,4}\s*(?:[A-Z]\s+)?/, ""));
+
+      var produit = null;
+      for (var k = idx; k <= Math.min(idx + 2, lines.length - 1); k++) {
+        var pm = lines[k].match(/\b(\d{6})\b/);
+        if (pm) { produit = pm[1]; break; }
+      }
+
+      var l = newLine({
+        fournisseur: fournisseur, methode: "OCR", num_cmde: num_cmde,
+        num_ar: num_ar, date_ar: date_ar, devise: "EUR"
+      });
+      l.id_poste = String(out.length + 1).padStart(3, "0");
+      l.produit = produit || "";
+      l.ref_fabricant = libelle;
+      l.qte = l.qte_a_recevoir = qtyM ? toFloat(qtyM[1], "fr") : null;
+      l.unite = "UNITE";
+      l.date_confirmee = toDate(m[1]);
+      l.date_souhaitee = l.date_confirmee;
+      l.pu_ht = toFloat(m[2], "fr");
+      l.total_annonce = toFloat(m[3], "fr");
+      l.commentaires = "AR = BC retourne signe (scan, OCR automatique)";
+      flag(l, "A VERIFIER", "valeurs issues de l'OCR automatique, relecture humaine requise", 0.35);
+      out.push(l);
+    });
+    return out;
+  }
+
+  var tesseractLoadOpts = {
+    workerPath: "assets/tesseract/worker.min.js",
+    corePath: "assets/tesseract/tesseract-core-lstm.wasm.js",
+    langPath: "assets/tesseract",
+    gzip: true
+  };
+
+  async function ocrPage(pdfDoc, pageNum, onProgress) {
+    var page = await pdfDoc.getPage(pageNum);
+    var viewport = page.getViewport({ scale: 2.5 });
+    var canvas = document.createElement("canvas");
+    canvas.width = viewport.width; canvas.height = viewport.height;
+    await page.render({ canvasContext: canvas.getContext("2d"), viewport: viewport }).promise;
+    var opts = Object.assign({}, tesseractLoadOpts, {
+      logger: function (m) {
+        if (onProgress && m.status === "recognizing text") onProgress(Math.round(m.progress * 100));
+      }
+    });
+    var result = await Tesseract.recognize(canvas, "fra", opts);
+    return result.data.text || "";
+  }
+
   /* ============================================================
      6. Contrôles de cohérence
      ============================================================ */
@@ -596,7 +674,7 @@
     return lignes;
   }
 
-  async function traiterFichier(file, ocrData) {
+  async function traiterFichier(file, ocrData, onOcrProgress) {
     var buf = await file.arrayBuffer();
     var pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
     var text = await extractDocText(pdfDoc);
@@ -604,8 +682,27 @@
 
     if (!hasText) {
       if (ocrData) return { lignes: finalize(parseScan(ocrData), file.name), rawText: text };
+
+      if (ocrLibOk) {
+        var ocrText;
+        try {
+          ocrText = await ocrPage(pdfDoc, 1, onOcrProgress);
+        } catch (ocrErr) {
+          console.error("OCR", file.name, ocrErr);
+          var lErr = newLine({ fichier: file.name });
+          flag(lErr, "BLOQUANT", "OCR automatique en échec (" + (ocrErr && ocrErr.message ? ocrErr.message : "erreur") + ") : dépose un JSON OCR", 1.0);
+          return { lignes: finalize([lErr], file.name), rawText: "" };
+        }
+        if (isAwOwnTemplate(ocrText)) {
+          return { lignes: finalize(parseAwScan(ocrText), file.name), rawText: ocrText };
+        }
+        var lUnk = newLine({ fichier: file.name, fournisseur: classify(ocrText, file.name) });
+        flag(lUnk, "BLOQUANT", "scan OCRisé mais mise en page non reconnue (ni AR standard, ni commande Analog Way) : dépose un JSON OCR", 1.0);
+        return { lignes: finalize([lUnk], file.name), rawText: ocrText };
+      }
+
       var l0 = newLine({ fichier: file.name, fournisseur: classify("", file.name) });
-      flag(l0, "BLOQUANT", "PDF sans couche texte (scan) : dépose son JSON OCR pour le traiter", 1.0);
+      flag(l0, "BLOQUANT", "PDF sans couche texte (scan) : OCR indisponible, dépose son JSON OCR pour le traiter", 1.0);
       return { lignes: finalize([l0], file.name), rawText: text };
     }
 
@@ -825,7 +922,9 @@
         if (entry.ocrFile) { try { ocrData = JSON.parse(await entry.ocrFile.text()); } catch (e) { ocrData = null; } }
         var lignes, rawText = "";
         try {
-          var res = await traiterFichier(entry.pdfFile, ocrData);
+          var res = await traiterFichier(entry.pdfFile, ocrData, function (pct) {
+            setStatus("muted", "OCR " + (i + 1) + "/" + entries.length + " — " + entry.pdfFile.name + " … " + pct + "%");
+          });
           lignes = res.lignes; rawText = res.rawText || "";
         } catch (fileErr) {
           console.error(entry.pdfFile.name, fileErr);
@@ -952,7 +1051,8 @@
         rawDetail.className = "file-detail";
         rawDetail.style.marginTop = "var(--ads-space-2)";
         var rawSummary = document.createElement("summary");
-        rawSummary.textContent = "Texte brut extrait par pdf.js (debug)";
+        var isOcrMethod = lignes[0].methode === "OCR";
+        rawSummary.textContent = isOcrMethod ? "Texte brut reconnu par OCR (debug)" : "Texte brut extrait par pdf.js (debug)";
         rawDetail.appendChild(rawSummary);
         var rawWell = document.createElement("div");
         rawWell.className = "ads-well";
