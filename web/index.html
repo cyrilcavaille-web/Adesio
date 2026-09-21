@@ -600,10 +600,10 @@
     var hasText = text.trim().length > 0;
 
     if (!hasText) {
-      if (ocrData) return finalize(parseScan(ocrData), file.name);
+      if (ocrData) return { lignes: finalize(parseScan(ocrData), file.name), rawText: text };
       var l0 = newLine({ fichier: file.name, fournisseur: classify("", file.name) });
       flag(l0, "BLOQUANT", "PDF sans couche texte (scan) : dépose son JSON OCR pour le traiter", 1.0);
-      return finalize([l0], file.name);
+      return { lignes: finalize([l0], file.name), rawText: text };
     }
 
     var fournisseur = classify(text, file.name);
@@ -617,7 +617,7 @@
       else { var l1 = newLine({ fichier: file.name, fournisseur: "DUFLOT" }); flag(l1, "BLOQUANT", "AR Duflot : dépose le JSON OCR pour extraire les postes", 1.0); lignes = [l1]; }
     } else { var l2 = newLine({ fichier: file.name }); flag(l2, "BLOQUANT", "fournisseur non reconnu : parseur dédié requis", 1.0); lignes = [l2]; }
 
-    return finalize(lignes, file.name, fournisseur);
+    return { lignes: finalize(lignes, file.name, fournisseur), rawText: text };
   }
 
   /* ============================================================
@@ -812,6 +812,7 @@
     if (!libOk || entries.length === 0) return;
     convertBtn.disabled = true;
     var lignesByFile = {};
+    var rawTextByFile = {};
     var failures = 0;
     try {
       for (var i = 0; i < entries.length; i++) {
@@ -819,9 +820,10 @@
         setStatus("muted", "traitement " + (i + 1) + "/" + entries.length + " — " + entry.pdfFile.name + " …");
         var ocrData = null;
         if (entry.ocrFile) { try { ocrData = JSON.parse(await entry.ocrFile.text()); } catch (e) { ocrData = null; } }
-        var lignes;
+        var lignes, rawText = "";
         try {
-          lignes = await traiterFichier(entry.pdfFile, ocrData);
+          var res = await traiterFichier(entry.pdfFile, ocrData);
+          lignes = res.lignes; rawText = res.rawText || "";
         } catch (fileErr) {
           console.error(entry.pdfFile.name, fileErr);
           failures += 1;
@@ -829,10 +831,12 @@
           flag(errLine, "BLOQUANT", "erreur de lecture : " + (fileErr && fileErr.message ? fileErr.message : "fichier illisible"), 1.0);
           lignes = finalize([errLine], entry.pdfFile.name);
         }
-        lignesByFile[entry.pdfFile.name + "#" + entry.id] = lignes;
+        var key = entry.pdfFile.name + "#" + entry.id;
+        lignesByFile[key] = lignes;
+        rawTextByFile[key] = rawText;
       }
       setStatus(failures ? "crit" : "ok", "terminé · " + entries.length + " fichier(s)" + (failures ? " · " + failures + " en erreur" : ""));
-      await renderResults(lignesByFile, false);
+      await renderResults(lignesByFile, false, rawTextByFile);
     } catch (err) {
       console.error(err);
       setStatus("crit", "erreur : " + (err && err.message ? err.message : "traitement impossible"));
@@ -844,7 +848,8 @@
   /* ============================================================
      10. Rendu des résultats + téléchargement
      ============================================================ */
-  async function renderResults(lignesByFile, isExample) {
+  async function renderResults(lignesByFile, isExample, rawTextByFile) {
+    rawTextByFile = rawTextByFile || {};
     var allLines = [];
     Object.keys(lignesByFile).forEach(function (k) { allLines = allLines.concat(lignesByFile[k]); });
 
@@ -936,6 +941,26 @@
       dTable.appendChild(dTbody);
       dTableWrap.appendChild(dTable);
       detail.appendChild(dTableWrap);
+
+      var rawKey = Object.keys(rawTextByFile).find(function (k) { return k.indexOf(lignes[0].fichier + "#") === 0; });
+      var rawText = rawKey ? rawTextByFile[rawKey] : "";
+      if (rawText) {
+        var rawDetail = document.createElement("details");
+        rawDetail.className = "file-detail";
+        rawDetail.style.marginTop = "var(--ads-space-2)";
+        var rawSummary = document.createElement("summary");
+        rawSummary.textContent = "Texte brut extrait par pdf.js (debug)";
+        rawDetail.appendChild(rawSummary);
+        var rawWell = document.createElement("div");
+        rawWell.className = "ads-well";
+        rawWell.style.marginTop = "var(--ads-space-2)";
+        var rawPre = document.createElement("pre");
+        rawPre.style.cssText = "margin:0;white-space:pre-wrap;word-break:break-word;font-family:var(--ads-font-mono);font-size:var(--ads-text-7);max-height:280px;overflow:auto;color:var(--ads-text-body)";
+        rawPre.textContent = rawText;
+        rawWell.appendChild(rawPre);
+        rawDetail.appendChild(rawWell);
+        detail.appendChild(rawDetail);
+      }
 
       var detailRow = document.createElement("tr");
       var detailCell = document.createElement("td");
