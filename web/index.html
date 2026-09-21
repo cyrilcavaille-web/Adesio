@@ -420,7 +420,10 @@
     var cmdeM = text.match(/No Commande:\s*(\S+)/);
     var modification = text.indexOf("Modification d'AR") !== -1;
 
-    var blocRe = /^\s*(\d+)\s+(?:\(C\))?(\S+)\s+([\d.,]+)\s+([\d.,]+)(?:\s*\/\s*(\d+))?\s+([\d.,]+)\s*$/gm;
+    // pdf.js reconstructs "(C)REF" with a visible space ("(C) REF") where
+    // pdfplumber (and the Python parser) sees them glued together — allow
+    // either, matched against the real AR on the actual pdf.js output.
+    var blocRe = /^\s*(\d+)\s+(?:\(C\)\s*)?(\S+)\s+([\d.,]+)\s+([\d.,]+)(?:\s*\/\s*(\d+))?\s+([\d.,]+)\s*$/gm;
     var postes = Array.from(text.matchAll(blocRe));
     for (var i = 0; i < postes.length; i++) {
       var m = postes[i];
