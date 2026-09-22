@@ -386,18 +386,13 @@ def parse_polyrack(text: str) -> list[ARLine]:
 
 def parse_scan(text: str, pdf_path: Path) -> list[ARLine]:
     """
-    Pas de couche texte : l'AR est un scan du bon de commande AW retourne signe.
-    En production -> OCR (Tesseract / Azure Document Intelligence) puis reprise du
-    parseur "BC Analog Way". Ici, une transcription de reference sert de demo et
-    chaque ligne est marquee comme issue de l'OCR, a valider.
+    Pas de couche texte : l'AR est un scan (ex. le propre bon de commande AW
+    retourne signe par le fournisseur). En production -> OCR (Tesseract / Azure
+    Document Intelligence) produisant un JSON structure <nom_du_pdf>.ocr.json,
+    depose a cote du PDF. Chaque ligne est marquee comme issue de l'OCR, a valider.
+    Appelee uniquement quand ce JSON existe deja (voir traiter()).
     """
     ref = pdf_path.with_suffix(".ocr.json")
-    if not ref.exists():
-        ref = Path(__file__).parent / (pdf_path.stem + ".ocr.json")
-    if not ref.exists():
-        l = ARLine(fournisseur="DUFLOT", methode="OCR", fichier=pdf_path.name)
-        l.flag("BLOQUANT", "PDF sans couche texte : OCR requis", 1.0)
-        return [l]
     data = json.loads(ref.read_text(encoding="utf-8"))
     out = []
     for row in data["postes"]:
@@ -476,12 +471,28 @@ def controler(l: ARLine) -> None:
 def traiter(pdf_path: Path) -> list[ARLine]:
     with pdfplumber.open(pdf_path) as pdf:
         text = "\n".join((p.extract_text() or "") for p in pdf.pages)
-    fournisseur = classify(text, pdf_path.name)
-    if fournisseur == "INCONNU":
-        l = ARLine(fichier=pdf_path.name)
-        l.flag("BLOQUANT", "fournisseur non reconnu : bascule extraction generique/LLM", 1.0)
-        return [l]
-    lignes = PARSEURS[fournisseur](text, pdf_path)
+
+    has_text = bool(text.strip())
+    ocr_ref = pdf_path.with_suffix(".ocr.json")
+
+    if not has_text:
+        if ocr_ref.exists():
+            lignes = parse_scan(text, pdf_path)
+        else:
+            l = ARLine(fichier=pdf_path.name, fournisseur=classify(text, pdf_path.name))
+            if l.fournisseur == "INCONNU":
+                l.fournisseur = ""
+            l.flag("BLOQUANT", "PDF sans couche texte (scan) : depose son JSON OCR pour le traiter", 1.0)
+            lignes = [l]
+    else:
+        fournisseur = classify(text, pdf_path.name)
+        if fournisseur == "INCONNU":
+            l = ARLine(fichier=pdf_path.name)
+            l.flag("BLOQUANT", "fournisseur non reconnu : bascule extraction generique/LLM", 1.0)
+            lignes = [l]
+        else:
+            lignes = PARSEURS[fournisseur](text, pdf_path)
+
     for l in lignes:
         l.fichier = pdf_path.name
         if not l.methode:

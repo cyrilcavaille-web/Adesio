@@ -43,12 +43,12 @@
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto"><path d="M11 3v11M6 9l5-5 5 5"/><path d="M3 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
           </div>
           <div class="title">Fichiers PDF (un ou plusieurs AR)</div>
-          <div class="sub">clique pour parcourir — EBV, ICAPE, Confidee, Polyrack, Duflot…</div>
+          <div class="sub">clique pour parcourir</div>
           <input id="pdfs-input" type="file" name="pdfs" accept="application/pdf" multiple required hidden>
         </label>
 
         <label class="ocr-field">
-          <span>JSON OCR associé (optionnel — pour un AR scanné sans couche texte, ex. Duflot)</span>
+          <span>JSON OCR associé (optionnel — pour un AR scanné sans couche texte)</span>
           <input type="file" name="ocr_json" accept="application/json">
         </label>
 
@@ -57,7 +57,7 @@
 
       <form action="{{ url_for('demo') }}" method="post" class="demo-form">
         <button type="submit" class="ads-btn ads-btn--quiet ads-btn--sm">
-          Lancer la démo (exemple Duflot scanné + OCR)
+          Lancer la démo (exemple AR scanné + OCR)
         </button>
       </form>
 
@@ -125,16 +125,16 @@
       <strong class="card-title">Comment ça marche</strong>
       <ol class="how-list">
         <li><strong>Ingestion</strong> — lecture du PDF, détection de la couche texte.</li>
-        <li><strong>Classification</strong> — identification du fournisseur par empreinte texte (EBV, ICAPE, Confidee, Polyrack, Duflot…).</li>
+        <li><strong>Classification</strong> — identification du fournisseur par empreinte texte.</li>
         <li><strong>Extraction</strong> — parseur dédié par fournisseur (ancres + regex).</li>
         <li><strong>Normalisation</strong> — dates multi-formats, conventions numériques FR/EN, prix ramené à l'unité.</li>
         <li><strong>Contrôles</strong> — champs obligatoires, cohérence PU × Qté = total, écart de délai, format n° commande.</li>
         <li><strong>Export</strong> — fichier Excel ED36 (colonnes A→S) + journal de contrôle + paramétrage appliqué.</li>
       </ol>
       <p class="hint">
-        Les AR scannés sans couche texte (ex. Duflot) nécessitent un JSON produit par un moteur OCR
+        Les AR scannés sans couche texte nécessitent un JSON produit par un moteur OCR
         (Tesseract / Azure Document Intelligence), à déposer en second fichier avec le même nom de base
-        que le PDF (ex. <code>AR_PO_Duflot.pdf</code> + <code>AR_PO_Duflot.ocr.json</code>).
+        que le PDF (ex. <code>nom_du_fichier.pdf</code> + <code>nom_du_fichier.ocr.json</code>).
       </p>
     </section>
 

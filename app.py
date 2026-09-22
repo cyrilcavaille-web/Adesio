@@ -104,11 +104,11 @@ def convert():
 
 @app.route("/demo", methods=["POST"])
 def demo():
-    """Rejoue le pipeline sur le jeu d'exemple embarque (AR scanne DUFLOT + OCR)."""
+    """Rejoue le pipeline sur le jeu d'exemple embarque (AR scanne + OCR)."""
     with tempfile.TemporaryDirectory(prefix="ar2ed36_demo_") as tmp:
         work_dir = Path(tmp)
-        shutil.copy(SAMPLE_DIR / "AR_PO_Duflot.pdf", work_dir / "AR_PO_Duflot.pdf")
-        shutil.copy(SAMPLE_DIR / "AR_PO_Duflot.ocr.json", work_dir / "AR_PO_Duflot.ocr.json")
+        shutil.copy(SAMPLE_DIR / "AR_PO_Duflot.pdf", work_dir / "AR_scan_exemple.pdf")
+        shutil.copy(SAMPLE_DIR / "AR_PO_Duflot.ocr.json", work_dir / "AR_scan_exemple.ocr.json")
         result = _run_pipeline(work_dir)
 
     return render_template("index.html", result=result, erreur=None, demo=True)

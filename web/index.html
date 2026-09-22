@@ -164,7 +164,7 @@
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto"><path d="M11 3v11M6 9l5-5 5 5"/><path d="M3 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
         </div>
         <div class="title">Dépose un ou plusieurs AR (PDF)</div>
-        <div class="sub">ou clique pour parcourir — EBV, ICAPE, Confidee, Polyrack, Duflot…</div>
+        <div class="sub">ou clique pour parcourir</div>
       </div>
       <input type="file" id="file-input" accept="application/pdf" multiple hidden>
 
@@ -175,7 +175,7 @@
         <button class="ads-btn ads-btn--quiet ads-btn--sm" id="clear-btn" hidden>Tout retirer</button>
         <span id="convert-status" class="log"></span>
       </div>
-      <p class="hint">AR scanné sans couche texte (ex. Duflot, bon de commande retourné signé) : l'OCR automatique se déclenche seul pour ce type de document (peut prendre 15-30 s). Pour un autre modèle de scan, attache directement son JSON OCR sur la ligne du fichier.</p>
+      <p class="hint">AR scanné sans couche texte (bon de commande retourné signé) : l'OCR automatique se déclenche seul pour ce type de document (peut prendre 15-30 s). Pour un autre modèle de scan, attache directement son JSON OCR sur la ligne du fichier.</p>
       <p class="err" id="lib-error" hidden>Les librairies de lecture PDF / génération Excel n'ont pas pu se charger. Recharge la page ou réessaie plus tard.</p>
     </section>
 
@@ -190,7 +190,7 @@
       <div id="results-body"></div>
     </section>
 
-    <p class="foot">ar2ed36 — Adesio. Lecture PDF (pdf.js) et export Excel (ExcelJS) exécutés localement dans le navigateur ; aucun fichier n'est transmis à un serveur. Les parseurs EBV / ICAPE / Confidee / Polyrack restent à valider sur des AR réels de ces fournisseurs.</p>
+    <p class="foot">ar2ed36 — Adesio. Lecture PDF (pdf.js) et export Excel (ExcelJS) exécutés localement dans le navigateur ; aucun fichier n'est transmis à un serveur.</p>
   </div>
 </div>
 
@@ -725,7 +725,7 @@
     else if (fournisseur === "POLYRACK") lignes = parsePolyrack(text);
     else if (fournisseur === "DUFLOT") {
       if (ocrData) lignes = parseScan(ocrData);
-      else { var l1 = newLine({ fichier: file.name, fournisseur: "DUFLOT" }); flag(l1, "BLOQUANT", "AR Duflot : dépose le JSON OCR pour extraire les postes", 1.0); lignes = [l1]; }
+      else { var l1 = newLine({ fichier: file.name, fournisseur: fournisseur }); flag(l1, "BLOQUANT", "AR scanné : dépose le JSON OCR pour extraire les postes", 1.0); lignes = [l1]; }
     } else { var l2 = newLine({ fichier: file.name }); flag(l2, "BLOQUANT", "fournisseur non reconnu : parseur dédié requis", 1.0); lignes = [l2]; }
 
     return { lignes: finalize(lignes, file.name, fournisseur), rawText: text };
@@ -1140,8 +1140,8 @@
 
   renderFileList();
   if (libOk) {
-    var exampleLignes = finalize(parseScan(EXAMPLE_OCR_DUFLOT), "AR_Duflot.pdf (exemple)");
-    renderResults({ "AR_Duflot.pdf (exemple)": exampleLignes }, true);
+    var exampleLignes = finalize(parseScan(EXAMPLE_OCR_DUFLOT), "AR_scan_exemple.pdf");
+    renderResults({ "AR_scan_exemple.pdf": exampleLignes }, true);
   } else {
     resultsBody.innerHTML = "<p class=\"err\">Librairies indisponibles — impossible de charger l'exemple.</p>";
   }
